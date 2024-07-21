@@ -38,10 +38,12 @@ export default class DropdownHover extends EventListenerBase<{
   protected ignoreOutClickClassName: string;
   protected timeouts: {[type in DropdownHoverTimeoutType]?: number};
   protected detachClickEvent: () => void;
+  protected preventCloseOnOut?: boolean;
 
   constructor(options: {
     element: DropdownHover['element'],
-    ignoreOutClickClassName?: string
+    ignoreOutClickClassName?: string,
+    preventCloseOnOut?: boolean
   }) {
     super(false);
     safeAssign(this, options);
@@ -211,6 +213,10 @@ export default class DropdownHover extends EventListenerBase<{
         this.restoreScroll();
       } */
     } else {
+      if(this.preventCloseOnOut) {
+        return;
+      }
+
       this.dispatchEvent('close');
       this.ignoreMouseOut.clear();
       this.ignoreButtons.clear();

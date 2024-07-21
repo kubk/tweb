@@ -1,0 +1,38 @@
+.tgPhotoEditor {
+  .panelHeader {
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+
+    .undoRedo {
+      margin-left: auto;
+      display: flex;
+      gap: 24px;
+
+      .undo-redo-icon {
+        display: flex;
+        cursor: pointer;
+
+        &:active:not(.disabled) {
+          transform: scale(0.9);
+        }
+
+        &.disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .closeIcon {
+      cursor: pointer;
+      display: flex;
+    }
+
+    .edit {
+      margin-left: 32px;
+      font-weight: 500;
+      font-size: 20px;
+    }
+  }
+}

@@ -14,7 +14,8 @@
     "generate-changelog": "node ./src/scripts/generate_changelog.js",
     "generate-icons": "node ./src/scripts/icomoon/icomoon_generate.js",
     "change-version": "node ./src/scripts/change_version.js",
-    "lint": "npx eslint \"src/**/**.ts\"",
+    "lint": "npx eslint \"src/**/**.{ts,tsx}\"",
+    "lint:fix": "npx eslint \"src/**/**.{ts,tsx}\" --fix",
     "build:solid": "node ./src/scripts/build_solid.js"
   },
   "author": "",

@@ -1,0 +1,60 @@
+.tgPhotoEditor .anglePicker {
+  --angle-picker-color: #ffffff;
+
+  cursor: grab;
+  user-select: none;
+  color: var(--angle-picker-color);
+
+  .angleList .angleStep {
+    width: 1px;
+    height: 40px;
+    flex-direction: column;
+    margin-left: 2px;
+    margin-right: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .circle {
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 2px;
+
+      &.isMajor {
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+
+      &.isCurrent {
+        background-color: rgba(255, 255, 255, 1);
+      }
+    }
+
+    .label {
+      position: relative;
+
+      &.currentSelected {
+        transform: scale(1.2);
+      }
+
+      .angleSign {
+        position: absolute;
+        top: 0;
+        &::after {
+          content: "°";
+        }
+      }
+    }
+  }
+
+  .angleList {
+    position: relative;
+    display: flex;
+
+    .currentAngleIcon {
+      position: absolute;
+      top: calc(50% - 8px);
+      left: calc(50% - 3px);
+    }
+  }
+}

@@ -7,7 +7,7 @@
 import flatten from '../helpers/array/flatten';
 import contextMenuController from '../helpers/contextMenuController';
 import cancelEvent from '../helpers/dom/cancelEvent';
-import {AttachClickOptions, attachClickEvent} from '../helpers/dom/clickEvent';
+import {AttachClickOptions, attachClickEvent, CLICK_EVENT_NAME} from '../helpers/dom/clickEvent';
 import findUpClassName from '../helpers/dom/findUpClassName';
 import setInnerHTML from '../helpers/dom/setInnerHTML';
 import ListenerSetter from '../helpers/listenerSetter';
@@ -19,10 +19,15 @@ import ripple from './ripple';
 import Icon from './icon';
 import RadioForm from './radioForm';
 import wrapAttachBotIcon from './wrappers/attachBotIcon';
+import setBlankToAnchor from '../lib/richTextProcessor/setBlankToAnchor';
+import App from '../config/app';
+import ButtonMenuToggleNested from './buttonMenuToggleNested';
+import {AvatarNew} from './avatarNew';
 
 type ButtonMenuItemInner = Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>;
 export type ButtonMenuItemOptions = {
   icon?: Icon,
+  iconAvatar?: number;
   iconDoc?: Document.document,
   danger?: boolean,
   new?: boolean,
@@ -42,6 +47,7 @@ export type ButtonMenuItemOptions = {
   separatorDown?: boolean,
   multiline?: boolean,
   secondary?: boolean,
+  nestedMenuButtons?: ButtonMenuItemOptionsVerifiable[],
   loadPromise?: Promise<any>,
   waitForAnimation?: boolean,
   radioGroup?: string,
@@ -56,7 +62,7 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(options.element) return [options.separator as HTMLElement, options.element].filter(Boolean);
 
-  const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener} = options;
+  const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener, iconAvatar} = options;
   const el = document.createElement('div');
   const iconSplitted = icon?.split(' ');
   el.className = 'btn-menu-item rp-overflow' +
@@ -70,6 +76,12 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
 
   if(iconSplitted) {
     el.append(Icon(iconSplitted[0] as Icon, 'btn-menu-item-icon'));
+  }
+
+  if(iconAvatar) {
+    const avatarElement = AvatarNew({peerId: iconAvatar, size: 20}).element as HTMLElement
+    avatarElement.classList.add('btn-menu-item-icon');
+    el.append(avatarElement);
   }
 
   let textElement = options.textElement;
@@ -164,6 +176,37 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
     el.append(Icon('next', 'btn-menu-item-icon', 'btn-menu-item-icon-right'));
     el.classList.add('has-inner');
     (el as any).inner = options.inner;
+  }
+
+
+  if(options.nestedMenuButtons) {
+    ButtonMenuToggleNested({
+      buttons: options.nestedMenuButtons,
+      direction: 'bottom-right',
+      onOpen: (btnMenu) => {
+        const btnMenuFooter = document.createElement('a');
+        btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
+        setBlankToAnchor(btnMenuFooter);
+        btnMenuFooter.classList.add('btn-menu-footer');
+        btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {
+          e.stopPropagation();
+          contextMenuController.close();
+        });
+        const t = document.createElement('span');
+        t.classList.add('btn-menu-footer-text');
+        t.textContent = 'Telegram Web' + App.suffix + ' '/* ' alpha ' */ + App.versionFull.split(' ')[0];
+        btnMenuFooter.append(t);
+        btnMenu.classList.add('has-footer');
+        btnMenu.append(btnMenuFooter);
+
+        const a = btnMenu.querySelector('.a .btn-menu-item-icon');
+        if(a) a.textContent = 'A';
+      }
+    }).then((nestedMenu) => {
+      el.append(Icon('next', 'btn-menu-item-icon', 'btn-menu-item-icon-right'));
+      el.append(nestedMenu)
+      el.classList.add('btn-menu-item-more')
+    })
   }
 
   const ret: HTMLElement[] = [options.element = el];

@@ -113,6 +113,8 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
 
   protected night: boolean;
 
+  private stopCancellingEnter = false;
+
   constructor(className: string, options: PopupOptions = {}) {
     super(false);
     this.element.classList.add('popup');
@@ -366,6 +368,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
           return;
         }
 
+        if(this.stopCancellingEnter) return;
         if(this.confirmShortcutIsSendShortcut ? isSendShortcutPressed(e) : e.key === 'Enter') {
           simulateClickEvent(this.btnConfirmOnEnter);
           cancelEvent(e);
@@ -433,6 +436,19 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     (this.scrollable || this.body).prepend(div);
     const dispose = render(callback, div);
     this.addEventListener('closeAfterTimeout', dispose as any);
+  }
+
+  protected appendSolidToElement(el: HTMLElement, callback: () => JSX.Element) {
+    const div = document.createElement('div');
+    el.append(div);
+    const dispose = render(callback, div);
+    this.addEventListener('closeAfterTimeout', (() => {
+      dispose()
+    }) as any);
+  }
+
+  protected setStopCancellingEnter(isSet: boolean) {
+    this.stopCancellingEnter = isSet;
   }
 
   public static reAppend() {

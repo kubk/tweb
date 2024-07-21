@@ -1294,6 +1294,7 @@ const lang = {
   'DistanceUnitsKilometers': 'Kilometers',
   'DistanceUnitsMiles': 'Miles',
   'PeopleNearby': 'People Nearby',
+  'More': 'More',
   'MakeMyselfVisible': 'Make Myself Visible',
   'MakeMyselfVisibleTitle': 'Show Your Profile?',
   'MakeMyselfVisibleInfo': 'Users nearby will be able to view your profile and send you messages. This may help you find new friends, but could also attract excessive attention. You can stop sharing your profile at any time.\n\nYour phone number will remain hidden.',

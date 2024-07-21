@@ -1,0 +1,26 @@
+.tgPhotoEditor {
+  .photoEditDoneButton {
+    position: fixed;
+    z-index: 10;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 54px;
+    width: 54px;
+    border-radius: 100%;
+    background: rgba(78, 142, 229, 1);
+    color: white;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:active {
+      opacity: 0.6;
+      transform: scale(0.9);
+    }
+  }
+}

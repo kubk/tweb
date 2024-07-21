@@ -31,7 +31,7 @@ import findUpTag from '../../helpers/dom/findUpTag';
 import App from '../../config/app';
 import ButtonMenuToggle from '../buttonMenuToggle';
 import sessionStorage from '../../lib/sessionStorage';
-import {attachClickEvent, CLICK_EVENT_NAME, simulateClickEvent} from '../../helpers/dom/clickEvent';
+import {attachClickEvent, simulateClickEvent} from '../../helpers/dom/clickEvent';
 import ButtonIcon from '../buttonIcon';
 import confirmationPopup from '../confirmationPopup';
 import IS_GEOLOCATION_SUPPORTED from '../../environment/geolocationSupport';
@@ -43,7 +43,6 @@ import indexOfAndSplice from '../../helpers/array/indexOfAndSplice';
 import formatNumber from '../../helpers/number/formatNumber';
 import {AppManagers} from '../../lib/appManagers/managers';
 import themeController from '../../helpers/themeController';
-import contextMenuController from '../../helpers/contextMenuController';
 import appDialogsManager, {DIALOG_LIST_ELEMENT_TAG} from '../../lib/appManagers/appDialogsManager';
 import apiManagerProxy from '../../lib/mtproto/mtprotoworker';
 import SettingSection, {SettingSectionOptions} from '../settingSection';
@@ -66,13 +65,19 @@ import flatten from '../../helpers/array/flatten';
 import EmojiTab from '../emoticonsDropdown/tabs/emoji';
 import {EmoticonsDropdown} from '../emoticonsDropdown';
 import cloneDOMRect from '../../helpers/dom/cloneDOMRect';
-import {AccountEmojiStatuses, Document, EmojiStatus} from '../../layer';
+import {AccountEmojiStatuses, EmojiStatus} from '../../layer';
 import filterUnique from '../../helpers/array/filterUnique';
 import {Middleware, MiddlewareHelper} from '../../helpers/middleware';
 import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
+import wrapPeerTitle from '../wrappers/peerTitle';
+
+const getUserAccountList =  async() =>{
+  const users =  await rootScope.managers.appUsersManager.getAccountsData();
+  return users;
+}
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -176,97 +181,108 @@ export class AppSidebarLeft extends SidebarSlider {
     }, {
       icon: 'user',
       text: 'Contacts',
-      onClick: onContactsClick
-    }, IS_GEOLOCATION_SUPPORTED ? {
-      icon: 'group',
-      text: 'PeopleNearby',
-      onClick: () => {
-        this.createTab(AppPeopleNearbyTab).open();
-      }
-    } : undefined, {
-      icon: 'settings',
-      text: 'Settings',
-      onClick: () => {
-        this.createTab(AppSettingsTab).open();
-      }
-    }, {
-      icon: 'darkmode',
-      text: 'DarkMode',
-      onClick: () => {
+      onClick: onContactsClick,
+      separatorDown: true
+    },
+      IS_GEOLOCATION_SUPPORTED ? {
+        icon: 'group',
+        text: 'PeopleNearby',
+        onClick: () => {
+          this.createTab(AppPeopleNearbyTab).open();
+        }
+      } : undefined, {
+        icon: 'settings',
+        text: 'Settings',
+        onClick: () => {
+          this.createTab(AppSettingsTab).open();
+        }
+      },
+      {
+        icon: 'more',
+        text: 'More',
+        onClick: () => {
 
-      },
-      checkboxField: themeCheckboxField
-    }, {
-      icon: 'animations',
-      text: 'Animations',
-      onClick: () => {
+        },
+        nestedMenuButtons: [
+          {
+            icon: 'darkmode',
+            text: 'DarkMode',
+            onClick: () => {
 
-      },
-      checkboxField: new CheckboxField({
-        toggle: true,
-        checked: liteMode.isAvailable('animations'),
-        stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
-        stateValueReverse: true
-      }),
-      verify: () => !liteMode.isEnabled()
-    }, {
-      icon: 'animations',
-      text: 'LiteMode.Title',
-      onClick: () => {
-        this.createTab(AppPowerSavingTab).open();
-      },
-      verify: () => liteMode.isEnabled()
-    }, {
-      icon: 'help',
-      text: 'TelegramFeatures',
-      onClick: () => {
-        const url = I18n.format('TelegramFeaturesUrl', true);
-        appImManager.openUrl(url);
+            },
+            checkboxField: themeCheckboxField
+          }, {
+            icon: 'animations',
+            text: 'Animations',
+            onClick: () => {
+
+            },
+            checkboxField: new CheckboxField({
+              toggle: true,
+              checked: liteMode.isAvailable('animations'),
+              stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
+              stateValueReverse: true
+            }),
+            verify: () => !liteMode.isEnabled()
+          }, {
+            icon: 'animations',
+            text: 'LiteMode.Title',
+            onClick: () => {
+              this.createTab(AppPowerSavingTab).open();
+            },
+            verify: () => liteMode.isEnabled(),
+            // TODO: figure out why doesn't work
+            separatorDown: true,
+            separator: true
+          },
+          {
+            icon: 'plusround',
+            text: 'PWA.Install',
+            onClick: () => {
+              const installPrompt = getInstallPrompt();
+              installPrompt?.();
+            },
+            verify: () => !!getInstallPrompt()
+          },
+          {
+            icon: 'char' as Icon,
+            className: 'a',
+            text: 'ChatList.Menu.SwitchTo.A',
+            onClick: () => {
+              Promise.all([
+                sessionStorage.set({kz_version: 'Z'}),
+                sessionStorage.delete('tgme_sync')
+              ]).then(() => {
+                location.href = 'https://web.telegram.org/a/';
+              });
+            },
+            verify: () => App.isMainDomain
+          },
+          {
+            icon: 'help',
+            text: 'TelegramFeatures',
+            onClick: () => {
+              const url = I18n.format('TelegramFeaturesUrl', true);
+              appImManager.openUrl(url);
+            }
+          },
+          {
+            icon: 'bug',
+            text: 'ReportBug',
+            onClick: () => {
+              const a = document.createElement('a');
+              setBlankToAnchor(a);
+              a.href = 'https://bugs.telegram.org/?tag_ids=40&sort=time';
+              document.body.append(a);
+              a.click();
+              setTimeout(() => {
+                a.remove();
+              }, 0);
+            }
+          }
+        ]
       }
-    }, {
-      icon: 'bug',
-      text: 'ReportBug',
-      onClick: () => {
-        const a = document.createElement('a');
-        setBlankToAnchor(a);
-        a.href = 'https://bugs.telegram.org/?tag_ids=40&sort=time';
-        document.body.append(a);
-        a.click();
-        setTimeout(() => {
-          a.remove();
-        }, 0);
-      }
-    }, {
-      icon: 'char' as Icon,
-      className: 'a',
-      text: 'ChatList.Menu.SwitchTo.A',
-      onClick: () => {
-        Promise.all([
-          sessionStorage.set({kz_version: 'Z'}),
-          sessionStorage.delete('tgme_sync')
-        ]).then(() => {
-          location.href = 'https://web.telegram.org/a/';
-        });
-      },
-      verify: () => App.isMainDomain
-    }, /* {
-      icon: 'char w',
-      text: 'ChatList.Menu.SwitchTo.Webogram',
-      onClick: () => {
-        sessionStorage.delete('tgme_sync').then(() => {
-          location.href = 'https://web.telegram.org/?legacy=1';
-        });
-      },
-      verify: () => App.isMainDomain
-    }, */ {
-      icon: 'plusround',
-      text: 'PWA.Install',
-      onClick: () => {
-        const installPrompt = getInstallPrompt();
-        installPrompt?.();
-      },
-      verify: () => !!getInstallPrompt()
-    }];
+    ];
 
     const filteredButtons = menuButtons.filter(Boolean);
     const filteredButtonsSliced = filteredButtons.slice();
@@ -274,11 +290,16 @@ export class AppSidebarLeft extends SidebarSlider {
       direction: 'bottom-right',
       buttons: filteredButtons,
       onOpenBefore: async() => {
-        const attachMenuBots = await this.managers.appAttachMenuBotsManager.getAttachMenuBots();
+        const [attachMenuBots, userAccountList] = await Promise.all([
+          await this.managers.appAttachMenuBotsManager.getAttachMenuBots(),
+          await getUserAccountList()
+        ])
         const buttons = filteredButtonsSliced.slice();
-        const attachMenuBotsButtons = attachMenuBots.filter((attachMenuBot) => {
+        const botsToShowInSideMenu = attachMenuBots.filter((attachMenuBot) => {
           return attachMenuBot.pFlags.show_in_side_menu;
-        }).map((attachMenuBot) => {
+        });
+        const attachMenuBotsButtons = botsToShowInSideMenu.map((attachMenuBot, i) => {
+          const isLast = i === botsToShowInSideMenu.length - 1;
           const icon = getAttachMenuBotIcon(attachMenuBot);
           const button: typeof buttons[0] = {
             regularText: wrapEmojiText(attachMenuBot.short_name),
@@ -291,34 +312,46 @@ export class AppSidebarLeft extends SidebarSlider {
               });
             },
             iconDoc: icon?.icon as MyDocument,
+            separatorDown: isLast,
             new: attachMenuBot.pFlags.side_menu_disclaimer_needed || attachMenuBot.pFlags.inactive
           };
 
           return button;
         });
 
-        buttons.splice(3, 0, ...attachMenuBotsButtons);
+        const userAccountListButtons = await Promise.all(userAccountList.map(async(user, i) => {
+          const isLast = i === userAccountList.length - 1;
+
+          const userCorrectName = await wrapPeerTitle({
+            peerId: user.id.toPeerId(),
+            plainText: true
+          })
+
+          const button: typeof buttons[0] = {
+            regularText: userCorrectName,
+            iconAvatar: user.id.toPeerId(),
+            onClick: () => {
+            }
+          };
+
+          return button;
+        }))
+
+        userAccountListButtons.push({
+          icon: 'plus',
+          // @ts-ignore
+          text: 'Add Account',
+          onClick: async() => {
+            // await loadSessionToSessionStorage();
+          }
+        })
+
+        buttons.splice(0, 0, ...userAccountListButtons);
+
+        buttons.splice(4, 0, ...attachMenuBotsButtons);
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
       },
-      onOpen: (e, btnMenu) => {
-        const btnMenuFooter = document.createElement('a');
-        btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
-        setBlankToAnchor(btnMenuFooter);
-        btnMenuFooter.classList.add('btn-menu-footer');
-        btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {
-          e.stopPropagation();
-          contextMenuController.close();
-        });
-        const t = document.createElement('span');
-        t.classList.add('btn-menu-footer-text');
-        t.textContent = 'Telegram Web' + App.suffix + ' '/* ' alpha ' */ + App.versionFull;
-        btnMenuFooter.append(t);
-        btnMenu.classList.add('has-footer');
-        btnMenu.append(btnMenuFooter);
-
-        const a = btnMenu.querySelector('.a .btn-menu-item-icon');
-        if(a) a.textContent = 'A';
-
+      onOpen: () => {
         btnArchive.element?.append(this.archivedCount);
       },
       noIcon: true

@@ -1,0 +1,14 @@
+.tgPhotoEditor .applyCrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 16px;
+  height: 48px;
+  border-radius: 10px;
+  flex: 1;
+  margin-left: 16px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  margin-top: 8px;
+  background-color: rgba(43, 43, 43, 1);
+}

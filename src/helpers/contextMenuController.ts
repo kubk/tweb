@@ -10,6 +10,7 @@ import findUpClassName from './dom/findUpClassName';
 import mediaSizes from './mediaSizes';
 import OverlayClickHandler from './overlayClickHandler';
 import overlayCounter from './overlayCounter';
+import {nestedMenuClass} from '../components/buttonMenuToggleNested';
 
 class ContextMenuController extends OverlayClickHandler {
   constructor() {
@@ -43,11 +44,23 @@ class ContextMenuController extends OverlayClickHandler {
     const diffX = clientX >= rect.right ? clientX - rect.right : rect.left - clientX;
     const diffY = clientY >= rect.bottom ? clientY - rect.bottom : rect.top - clientY;
 
-    if(diffX >= 100 || diffY >= 100) {
-      this.close();
-      // openedMenu.parentElement.click();
+    const isTooFarFromMain = diffX >= 100 || diffY >= 100;
+
+    const nestedMenu = element ? findUpClassName(element, nestedMenuClass) : null
+    if(nestedMenu) {
+      const nestedRect = nestedMenu.getBoundingClientRect();
+      const nestedDiffX = clientX >= nestedRect.right ? clientX - nestedRect.right : nestedRect.left - clientX;
+      const nestedDiffY = clientY >= nestedRect.bottom ? clientY - nestedRect.bottom : nestedRect.top - clientY;
+      const isTooFarFromNested = nestedDiffX >= 100 || nestedDiffY >= 100;
+      if(isTooFarFromNested && isTooFarFromMain) {
+        this.close();
+      }
+      return;
     }
-    // console.log('mousemove', diffX, diffY);
+
+    if(isTooFarFromMain) {
+      this.close();
+    }
   };
 
   public close() {

@@ -1,0 +1,14 @@
+.tgPhotoEditor .cropRowWrapper {
+  display: flex;
+  flex: 1;
+
+  .cropRowTitle {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    .cropIcon {
+      padding-top: 1px;
+    }
+  }
+}

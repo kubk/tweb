@@ -1,0 +1,21 @@
+.tgPhotoEditor {
+  .cropTab {
+    margin-top: 8px;
+    margin-left: 8px;
+    margin-right: 8px;
+
+    .cropTabTitle {
+      font-weight: 600;
+      font-size: 16px;
+      color: rgba(113, 117, 121, 1);
+      padding-left: 14px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .doubleCropRow {
+      display: flex;
+    }
+  }
+}

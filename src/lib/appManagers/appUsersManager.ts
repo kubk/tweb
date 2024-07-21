@@ -764,6 +764,13 @@ export class AppUsersManager extends AppManager {
     return this.getUser(this.userId);
   }
 
+  async getAccountsData() {
+    return [
+      this.getSelf()
+    ]
+  }
+
+
   public isBot(id: UserId) {
     return this.users[id] && !!this.users[id].pFlags.bot;
   }
