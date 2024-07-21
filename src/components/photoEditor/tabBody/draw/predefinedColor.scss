@@ -1,0 +1,15 @@
+.tgPhotoEditor {
+  .predefinedColor {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgb(var(--color));
+    cursor: pointer;
+    box-sizing: content-box;
+    transition: box-shadow 0.3s ease;
+
+    &.active {
+      box-shadow: 0 0 0 10px rgba(var(--color), 0.1);
+    }
+  }
+}

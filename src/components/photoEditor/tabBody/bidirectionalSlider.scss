@@ -1,0 +1,62 @@
+.tgPhotoEditor {
+  .bidirectionalSlider {
+    .slider-container {
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .slider-name {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .slider-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(113, 117, 121, 1);
+
+      &.active {
+        color: rgba(78, 142, 229, 1);
+      }
+    }
+
+    .slider-track {
+      position: relative;
+      width: 100%;
+      height: 4px;
+      background-color: #374151;
+      border-radius: 2px;
+    }
+
+    .slider-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-radius: 2px;
+      background-color: rgba(78, 142, 229, 1);
+    }
+
+    .slider-thumb {
+      position: absolute;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      background-color: rgba(78, 142, 229, 1);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+
+    .slider-input {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+}

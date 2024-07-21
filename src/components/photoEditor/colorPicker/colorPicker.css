@@ -1,0 +1,93 @@
+.tgPhotoEditor .colorPicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16px;
+  margin: 0 8px;
+  color: white;
+  background-color: rgba(33, 33, 33, 1);
+  border-radius: 0.5rem;
+}
+
+.tgPhotoEditor .colorPicker .huePickerWithRow {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  height: 48px;
+  width: 100%;
+}
+
+.tgPhotoEditor .colorPicker .slPicker {
+  width: 200px;
+  min-width: 200px;
+  height: 120px;
+  border-radius: 10px;
+  cursor: crosshair;
+  position: relative;
+}
+
+.tgPhotoEditor .colorPicker .slWithValues {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.tgPhotoEditor .colorPicker .slThumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.tgPhotoEditor .colorPicker .hueSlider {
+  width: 304px;
+  height: 20px;
+  border-radius: 100px;
+  cursor: pointer;
+  position: relative;
+  background: linear-gradient(
+    to right,
+    #f00,
+    #ff0,
+    #0f0,
+    #0ff,
+    #00f,
+    #f0f,
+    #f00
+  );
+}
+
+.tgPhotoEditor .colorPicker .hueThumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  border: 2px solid white;
+  position: absolute;
+  top: -2px;
+  left: 0;
+}
+
+.tgPhotoEditor .colorPicker .values {
+  width: 100%;
+}
+
+.tgPhotoEditor .colorPicker .valueBox {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ccc;
+}
+
+.tgPhotoEditor .colorPicker .valueLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.tgPhotoEditor .colorPicker .value {
+  font-size: 1.125rem;
+}

@@ -1,0 +1,19 @@
+.tgPhotoEditor .cropRow {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding-left: 16px;
+  height: 48px;
+  border-radius: 10px;
+  flex: 1;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  &.selected {
+    background-color: rgba(43, 43, 43, 1);
+  }
+
+  .cropIcon {
+    padding-top: 1px;
+  }
+}
