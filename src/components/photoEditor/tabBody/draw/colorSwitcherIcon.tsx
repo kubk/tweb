@@ -1,5 +1,5 @@
-import img from "./img/colorSwitcher.png";
-import "./colorSwitcher.scss";
+import img from './img/colorSwitcher.png';
+import './colorSwitcher.scss';
 
 export const ColorSwitcherIcon = (props: {
   isSelected: boolean;
@@ -7,13 +7,13 @@ export const ColorSwitcherIcon = (props: {
 }) => {
   return (
     <div
-      class={"colorSwitcher"}
+      class={'colorSwitcher'}
       onClick={props.onClick}
       classList={{
-        isSelected: props.isSelected,
+        isSelected: props.isSelected
       }}
     >
-      <img src={img} alt={"switcher"} />
+      <img src={img} alt={'switcher'} />
     </div>
   );
 };

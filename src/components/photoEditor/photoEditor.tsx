@@ -5,22 +5,23 @@ import {
   Match,
   onCleanup,
   Switch,
-  useContext,
-} from "solid-js";
-import { CanvasManager } from "./canvasManager";
-import "./photoEditor.scss";
-import { EnhanceTabBody } from "./tabBody/enhance/enhanceTabBody";
-import { PanelHeader } from "./panel/panelHeader";
-import { PanelTabs } from "./panel/panelTabs";
-import { DrawTabBody } from "./tabBody/draw/drawTabBody";
-import { CropTabBody } from "./tabBody/crop/cropTabBody";
-import { PhotoEditDoneButton } from "./lib/photoEditDoneButton";
-import { CropRotatePanel } from "./tabBody/crop/cropRotatePanel";
-import { TextTabBody } from "./tabBody/text/textTabBody";
-import { assert } from "./lib/assert";
+  useContext
+} from 'solid-js';
+import {CanvasManager} from './canvasManager';
+import './photoEditor.scss';
+import {EnhanceTabBody} from './tabBody/enhance/enhanceTabBody';
+import {PanelHeader} from './panel/panelHeader';
+import {PanelTabs} from './panel/panelTabs';
+import {DrawTabBody} from './tabBody/draw/drawTabBody';
+import {CropTabBody} from './tabBody/crop/cropTabBody';
+import {PhotoEditDoneButton} from './lib/photoEditDoneButton';
+import {CropRotatePanel} from './tabBody/crop/cropRotatePanel';
+import {TextTabBody} from './tabBody/text/textTabBody';
+import {assert} from './lib/assert';
 
 type Props = {
   onDoneClick: (canvasManager: CanvasManager) => void;
+  onClose: () => void;
 };
 
 const CanvasManagerContext = createContext<CanvasManager | null>(null);
@@ -37,7 +38,7 @@ export const CanvasManagerProvider = (props: { children: JSXElement }) => {
 
 export const useCanvasManager = () => {
   const manager = useContext(CanvasManagerContext);
-  assert(manager, "PhotoEditor must be within CanvasManagerProvider");
+  assert(manager, 'PhotoEditor must be within CanvasManagerProvider');
   return manager;
 };
 
@@ -62,23 +63,23 @@ export const PhotoEditor = (props: Props) => {
         <div class="canvasWrapper">
           <canvas ref={canvasRef!} id="canvas" />
         </div>
-        {tab() === "crop" && <CropRotatePanel />}
+        {tab() === 'crop' && <CropRotatePanel />}
       </div>
       <div class="panel">
-        <PanelHeader />
+        <PanelHeader onClose={props.onClose} />
         <PanelTabs />
 
         <Switch>
-          <Match when={tab() === "enhance"}>
+          <Match when={tab() === 'enhance'}>
             <EnhanceTabBody />
           </Match>
-          <Match when={tab() === "crop"}>
+          <Match when={tab() === 'crop'}>
             <CropTabBody />
           </Match>
-          <Match when={tab() === "text"}>
+          <Match when={tab() === 'text'}>
             <TextTabBody />
           </Match>
-          <Match when={tab() === "draw"}>
+          <Match when={tab() === 'draw'}>
             <DrawTabBody />
           </Match>
         </Switch>

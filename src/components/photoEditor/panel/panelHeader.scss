@@ -1,10 +1,10 @@
 .tgPhotoEditor {
-  .panel-header {
+  .panelHeader {
     padding: 14px 24px;
     display: flex;
     align-items: center;
 
-    .undo-redo {
+    .undoRedo {
       margin-left: auto;
       display: flex;
       gap: 24px;
@@ -21,6 +21,10 @@
           cursor: not-allowed;
         }
       }
+    }
+
+    .closeIcon {
+      cursor: pointer;
     }
 
     .edit {

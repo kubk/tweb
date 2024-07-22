@@ -1,5 +1,5 @@
-import "./tabIcon.scss";
-import { JSXElement } from "solid-js";
+import './tabIcon.scss';
+import {JSXElement} from 'solid-js';
 
 export const TabIcon = (props: {
   isActive: boolean;
@@ -10,7 +10,7 @@ export const TabIcon = (props: {
     <div
       class="editor-tab-icon"
       onClick={props.onClick}
-      classList={{ active: props.isActive }}
+      classList={{active: props.isActive}}
     >
       {props.children}
       {props.isActive && (
@@ -19,7 +19,7 @@ export const TabIcon = (props: {
           height="3"
           viewBox="0 0 24 3"
           fill="none"
-          class={"active-border"}
+          class={'active-border'}
           xmlns="http://www.w3.org/2000/svg"
         >
           <path

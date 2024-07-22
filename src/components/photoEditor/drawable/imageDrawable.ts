@@ -1,8 +1,8 @@
-import { Drawable } from "./drawable";
-import { applyEffects } from "../effects/apply-effects";
-import { Effects } from "../effects/effects";
-import { assert } from "../lib/assert";
-import { calculateScaleForRotation } from "../crop/calculateScaleForRotation";
+import {Drawable} from './drawable';
+import {applyEffects} from '../effects/apply-effects';
+import {Effects} from '../effects/effects';
+import {assert} from '../lib/assert';
+import {calculateScaleForRotation} from '../crop/calculateScaleForRotation';
 
 export class ImageDrawable extends Drawable {
   private originalHtmlImage?: HTMLImageElement;
@@ -15,13 +15,13 @@ export class ImageDrawable extends Drawable {
     public effects: Effects,
     public touchedEffects: Set<keyof Effects>,
     private processedCanvas: OffscreenCanvas,
-    angle: number,
+    angle: number
   ) {
     super();
     this.angle = angle % 360;
 
     // @ts-ignore
-    window["img"] = this;
+    window['img'] = this;
   }
 
   static fromImage(
@@ -30,7 +30,7 @@ export class ImageDrawable extends Drawable {
     height: number,
     effects: Effects,
     touchedEffects: Set<keyof Effects>,
-    angle = 0,
+    angle = 0
   ) {
     const offscreenCanvas = new OffscreenCanvas(width, height);
 
@@ -40,7 +40,7 @@ export class ImageDrawable extends Drawable {
       effects,
       touchedEffects,
       offscreenCanvas,
-      angle,
+      angle
     );
     self.originalHtmlImage = img;
     self.redrawProcessedCanvas();
@@ -54,7 +54,7 @@ export class ImageDrawable extends Drawable {
     height: number,
     effects: Effects,
     touchedEffects: Set<keyof Effects>,
-    angle = 0,
+    angle = 0
   ) {
     const processedCanvas = new OffscreenCanvas(width, height);
 
@@ -64,7 +64,7 @@ export class ImageDrawable extends Drawable {
       effects,
       touchedEffects,
       processedCanvas,
-      angle,
+      angle
     );
     self.originalImageData = imageData;
     self.redrawProcessedCanvas();
@@ -73,12 +73,12 @@ export class ImageDrawable extends Drawable {
   }
 
   private redrawProcessedCanvasViaHtmlImg() {
-    const ctx = this.processedCanvas.getContext("2d", {
-      willReadFrequently: true,
-    });
-    if (!ctx) return;
+    const ctx = this.processedCanvas.getContext('2d', {
+      willReadFrequently: true
+    }) as any;
+    if(!ctx) return;
     const img = this.originalHtmlImage;
-    if (!img) return;
+    if(!img) return;
 
     // Rotating start
     ctx.save();
@@ -86,7 +86,7 @@ export class ImageDrawable extends Drawable {
     ctx.rotate((this.angle * Math.PI) / 180);
     const scale = calculateScaleForRotation(this.angle, {
       width: this.width,
-      height: this.height,
+      height: this.height
     });
     ctx.scale(scale, scale);
     ctx.drawImage(
@@ -94,7 +94,7 @@ export class ImageDrawable extends Drawable {
       -this.width / 2,
       -this.height / 2,
       this.width,
-      this.height,
+      this.height
     );
     ctx.restore();
     // Rotating end
@@ -103,18 +103,18 @@ export class ImageDrawable extends Drawable {
 
     applyEffects(this.effects, this.touchedEffects, imageData, {
       imageWidth: this.width,
-      imageHeight: this.height,
+      imageHeight: this.height
     });
     ctx.putImageData(imageData, 0, 0);
   }
 
   private redrawProcessedCanvasViaImageData() {
-    const ctx = this.processedCanvas.getContext("2d", {
-      willReadFrequently: true,
-    });
-    if (!ctx) return;
+    const ctx = this.processedCanvas.getContext('2d', {
+      willReadFrequently: true
+    }) as any;
+    if(!ctx) return;
     const imageData = this.originalImageData;
-    if (!imageData) return;
+    if(!imageData) return;
 
     // Rotating start
     ctx.save();
@@ -122,14 +122,14 @@ export class ImageDrawable extends Drawable {
     ctx.rotate((this.angle * Math.PI) / 180);
     const scale = calculateScaleForRotation(this.angle, {
       width: this.width,
-      height: this.height,
+      height: this.height
     });
     ctx.scale(scale, scale);
 
     const tempCanvas = new OffscreenCanvas(this.width, this.height);
-    const tempCtx = tempCanvas.getContext("2d");
-    if (!tempCtx) return;
-    tempCtx.putImageData(imageData, 0, 0);
+    const tempCtx = tempCanvas.getContext('2d');
+    if(!tempCtx) return;
+    (tempCtx as any).putImageData(imageData, 0, 0);
     ctx.drawImage(tempCanvas, -this.width / 2, -this.height / 2);
     ctx.restore();
     // Rotating end
@@ -137,7 +137,7 @@ export class ImageDrawable extends Drawable {
     const rotatedImageData = ctx.getImageData(0, 0, this.width, this.height);
     applyEffects(this.effects, this.touchedEffects, rotatedImageData, {
       imageWidth: this.width,
-      imageHeight: this.height,
+      imageHeight: this.height
     });
     ctx.putImageData(rotatedImageData, 0, 0);
   }
@@ -154,16 +154,16 @@ export class ImageDrawable extends Drawable {
 
     const newWidth = Math.round(
       Math.abs(sourceWidth * Math.cos(angle)) +
-        Math.abs(sourceHeight * Math.sin(angle)),
+        Math.abs(sourceHeight * Math.sin(angle))
     );
     const newHeight = Math.round(
       Math.abs(sourceWidth * Math.sin(angle)) +
-        Math.abs(sourceHeight * Math.cos(angle)),
+        Math.abs(sourceHeight * Math.cos(angle))
     );
 
     const offscreenCanvas = new OffscreenCanvas(newWidth, newHeight);
-    const ctx = offscreenCanvas.getContext("2d");
-    assert(ctx, "Failed to get 2d context");
+    const ctx = offscreenCanvas.getContext('2d') as any;
+    assert(ctx, 'Failed to get 2d context');
 
     ctx.translate(newWidth / 2, newHeight / 2);
     ctx.rotate(angle);
@@ -172,7 +172,7 @@ export class ImageDrawable extends Drawable {
       -sourceWidth / 2,
       -sourceHeight / 2,
       sourceWidth,
-      sourceHeight,
+      sourceHeight
     );
 
     return {
@@ -181,17 +181,17 @@ export class ImageDrawable extends Drawable {
         newWidth,
         newHeight,
         this.effects,
-        this.touchedEffects,
+        this.touchedEffects
       ),
       width: newWidth,
-      height: newHeight,
+      height: newHeight
     };
   }
 
   flip(): ImageDrawable {
     const offscreenCanvas = new OffscreenCanvas(this.width, this.height);
-    const ctx = offscreenCanvas.getContext("2d");
-    assert(ctx, "Failed to get 2d context");
+    const ctx = offscreenCanvas.getContext('2d') as any;
+    assert(ctx, 'Failed to get 2d context');
 
     ctx.translate(this.width, 0);
     ctx.scale(-1, 1);
@@ -203,12 +203,12 @@ export class ImageDrawable extends Drawable {
       this.height,
       this.effects,
       this.touchedEffects,
-      0,
+      0
     );
   }
 
   redrawProcessedCanvas() {
-    if (this.originalHtmlImage) {
+    if(this.originalHtmlImage) {
       this.redrawProcessedCanvasViaHtmlImg();
     } else {
       this.redrawProcessedCanvasViaImageData();
@@ -220,9 +220,9 @@ export class ImageDrawable extends Drawable {
   }
 
   getImageData() {
-    return this.processedCanvas
-      .getContext("2d", { willReadFrequently: true })
-      ?.getImageData(0, 0, this.width, this.height);
+    return (this.processedCanvas
+    .getContext('2d', {willReadFrequently: true}) as any)
+    ?.getImageData(0, 0, this.width, this.height);
   }
 
   clone() {
@@ -234,12 +234,12 @@ export class ImageDrawable extends Drawable {
       this.effects,
       this.touchedEffects,
       offscreenCanvas,
-      this.angle,
+      this.angle
     );
-    if (this.originalImageData) {
+    if(this.originalImageData) {
       copy.originalImageData = this.originalImageData;
     }
-    if (this.originalHtmlImage) {
+    if(this.originalHtmlImage) {
       copy.originalHtmlImage = this.originalHtmlImage;
     }
     copy.redrawProcessedCanvas();

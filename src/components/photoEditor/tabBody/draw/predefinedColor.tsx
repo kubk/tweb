@@ -1,5 +1,5 @@
-import "./predefinedColor.scss";
-import { RGB } from "../../lib/colorUtils";
+import './predefinedColor.scss';
+import {RGB} from '../../lib/colorUtils';
 
 const rgbToString = (color: RGB) => {
   return `${color.r}, ${color.g}, ${color.b}`;
@@ -13,8 +13,8 @@ export const PredefinedColor = (props: {
   return (
     <div
       class={`predefinedColor`}
-      style={{ "--color": rgbToString(props.color) }}
-      classList={{ active: props.isSelected() }}
+      style={{'--color': rgbToString(props.color)}}
+      classList={{active: props.isSelected()}}
       onClick={props.onClick}
     />
   );

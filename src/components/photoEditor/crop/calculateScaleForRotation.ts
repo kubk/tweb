@@ -3,7 +3,7 @@ export const calculateScaleForRotation = (
   canvas: {
     width: number;
     height: number;
-  },
+  }
 ) => {
   const normalizedAngle = ((angle % 360) + 360) % 360;
   const rotationRad = normalizedAngle * (Math.PI / 180);

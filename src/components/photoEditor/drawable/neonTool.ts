@@ -1,5 +1,5 @@
-import { Drawable } from "./drawable";
-import { DrawingOptions } from "./options";
+import {Drawable} from './drawable';
+import {DrawingOptions} from './options';
 
 export class NeonTool extends Drawable {
   private path: Path2D = new Path2D();
@@ -13,12 +13,12 @@ export class NeonTool extends Drawable {
     super();
     this.renderLineWidth = options.size || 10;
     this.renderShadowRadius = 20;
-    this.renderColor = "#ffffff";
+    this.renderColor = '#ffffff';
     this.shadowColor = options.color;
   }
 
   onMouseMove(x: number, y: number) {
-    if (!this.isStarted) {
+    if(!this.isStarted) {
       this.path.moveTo(x, y);
       this.isStarted = true;
     } else {
@@ -27,14 +27,14 @@ export class NeonTool extends Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    if (!this.isStarted) return;
+    if(!this.isStarted) return;
 
     ctx.shadowColor = this.shadowColor;
     ctx.shadowBlur = this.renderShadowRadius;
     ctx.strokeStyle = this.shadowColor;
     ctx.lineWidth = this.renderLineWidth * 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.stroke(this.path);
 
     ctx.shadowBlur = 0;
@@ -46,7 +46,7 @@ export class NeonTool extends Drawable {
   clone() {
     const newNeonPen = new NeonTool({
       size: this.renderLineWidth,
-      color: this.renderColor,
+      color: this.renderColor
     });
     newNeonPen.path = new Path2D(this.path);
     newNeonPen.shadowColor = this.shadowColor;

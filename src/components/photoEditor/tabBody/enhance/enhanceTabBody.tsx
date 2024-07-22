@@ -1,10 +1,10 @@
-import { For } from "solid-js";
-import { effectList, SliderType } from "../../effects/effects";
-import { debounce } from "../../lib/debounce";
-import "./enhanceTabBody.scss";
-import { BidirectionalSlider } from "../bidirectionalSlider";
-import { PositiveSlider } from "../positiveSlider";
-import { useCanvasManager } from "../../photoEditor";
+import {For} from 'solid-js';
+import {effectList, SliderType} from '../../effects/effects';
+import {debounce} from '../../lib/debounce';
+import './enhanceTabBody.scss';
+import {BidirectionalSlider} from '../bidirectionalSlider';
+import {PositiveSlider} from '../positiveSlider';
+import {useCanvasManager} from '../../photoEditor';
 
 export const EnhanceTabBody = () => {
   const canvasManager = useCanvasManager();
@@ -14,10 +14,10 @@ export const EnhanceTabBody = () => {
   }, 100);
 
   return (
-    <div class={"enhance-panel"}>
+    <div class={'enhance-panel'}>
       <For each={effectList}>
         {([key, info]) => {
-          if (info.sliderType === SliderType.Bidirectional) {
+          if(info.sliderType === SliderType.Bidirectional) {
             return (
               <BidirectionalSlider
                 name={info.title}
@@ -43,7 +43,7 @@ export const EnhanceTabBody = () => {
                   canvasManager.setUiEffectValue(key, value);
                   debouncedApplyEffects();
                 }}
-                color={"rgba(78, 142, 229, 1)"}
+                color={'rgba(78, 142, 229, 1)'}
               />
             );
           }

@@ -1,12 +1,12 @@
-import { Drawable } from "./drawable";
-import { clamp } from "../lib/clamp";
+import {Drawable} from './drawable';
+import {clamp} from '../lib/clamp';
 
-export type TextAlign = "left" | "center" | "right";
-export type TextStyle = "plain" | "outline" | "background";
+export type TextAlign = 'left' | 'center' | 'right';
+export type TextStyle = 'plain' | 'outline' | 'background';
 
 type Line = { text: string; width: number };
 
-const caret = "|";
+const caret = '|';
 const borderRadius = 10;
 const handleRadius = 4;
 
@@ -16,7 +16,7 @@ const getNextId = (() => {
   return () => id++;
 })();
 
-type ResizeHandle = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 export class TextDrawable extends Drawable {
   isDragging = false;
@@ -43,16 +43,16 @@ export class TextDrawable extends Drawable {
     private textAlign: TextAlign,
     private textStyle: TextStyle,
     private onRemove: (id: number) => void,
-    private updateCursor: (cursor: string) => void,
+    private updateCursor: (cursor: string) => void
   ) {
     super();
     this.id = getNextId();
     this.updatePaddings();
     this.lineHeight = this.fontSize + this.innerPadding;
-    this.lines.push({ text: initialText, width: 0 });
+    this.lines.push({text: initialText, width: 0});
     this.calculateDimensions();
     // @ts-ignore
-    window["text" + this.id] = this;
+    window['text' + this.id] = this;
   }
 
   private updatePaddings() {
@@ -62,9 +62,9 @@ export class TextDrawable extends Drawable {
   }
 
   private calculateDimensions() {
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-    if (!tempCtx) throw new Error("Unable to create temporary canvas context");
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if(!tempCtx) throw new Error('Unable to create temporary canvas context');
 
     tempCtx.font = this.font;
 
@@ -90,17 +90,17 @@ export class TextDrawable extends Drawable {
     this.lines.forEach((line, index) => {
       let xOffsetAlignment = this.x + this.innerPadding;
       let rectangleX = this.x;
-      if (this.textAlign === "center") {
+      if(this.textAlign === 'center') {
         xOffsetAlignment =
           this.x + (this.maxWidth - line.width) / 2 + this.innerPadding;
         rectangleX = this.x + (this.maxWidth - line.width) / 2;
-      } else if (this.textAlign === "right") {
+      } else if(this.textAlign === 'right') {
         xOffsetAlignment =
           this.x + this.maxWidth - line.width + this.innerPadding;
         rectangleX = this.x + this.maxWidth - line.width;
       }
 
-      if (this.textStyle === "background") {
+      if(this.textStyle === 'background') {
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.roundRect(
@@ -108,27 +108,27 @@ export class TextDrawable extends Drawable {
           this.y + index * this.lineHeight,
           line.width,
           this.lineHeight,
-          borderRadius,
+          borderRadius
         );
         ctx.fill();
       }
 
       const textYPosition = this.y + index * this.lineHeight + textHeight;
-      if (this.textStyle === "outline") {
+      if(this.textStyle === 'outline') {
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 6;
-        ctx.lineJoin = "round";
+        ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
         ctx.strokeText(line.text, xOffsetAlignment, textYPosition);
       }
 
       ctx.fillStyle = (() => {
-        switch (this.textStyle) {
-          case "outline":
-            return this.color === "#FFFFFF" ? "#222" : "#FFFFFF";
-          case "background":
-            return this.color === "#FFFFFF" ? "#222" : "#FFFFFF";
-          case "plain":
+        switch(this.textStyle) {
+          case 'outline':
+            return this.color === '#FFFFFF' ? '#222' : '#FFFFFF';
+          case 'background':
+            return this.color === '#FFFFFF' ? '#222' : '#FFFFFF';
+          case 'plain':
             return this.color;
           default:
             return this.textStyle satisfies never;
@@ -138,26 +138,26 @@ export class TextDrawable extends Drawable {
       ctx.fillText(line.text, xOffsetAlignment, textYPosition);
 
       // Draw caret separately
-      if (index === this.currentLine && this.isSelected) {
+      if(index === this.currentLine && this.isSelected) {
         const textMetrics = ctx.measureText(line.text);
         const caretX = xOffsetAlignment + textMetrics.width;
         const yPosition =
           textYPosition - textMetrics.actualBoundingBoxAscent * 0.05;
 
         ctx.font = this.caretFont;
-        ctx.fillStyle = "#222";
+        ctx.fillStyle = '#222';
         ctx.fillText(caret, caretX, yPosition);
 
-        ctx.strokeStyle = "#fff";
+        ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
-        ctx.lineJoin = "round";
+        ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
         ctx.strokeText(caret, caretX, yPosition);
       }
     });
 
-    if (this.isSelected) {
-      ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+    if(this.isSelected) {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
       ctx.lineWidth = 1;
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
@@ -165,7 +165,7 @@ export class TextDrawable extends Drawable {
         this.x - this.outerPadding,
         this.y - this.outerPadding,
         this.maxWidth + this.outerPadding * 2,
-        this.height + this.outerPadding * 2,
+        this.height + this.outerPadding * 2
       );
       ctx.stroke();
       ctx.setLineDash([]);
@@ -173,37 +173,37 @@ export class TextDrawable extends Drawable {
       this.drawHandle(
         ctx,
         this.x - this.outerPadding,
-        this.y - this.outerPadding,
+        this.y - this.outerPadding
       );
       this.drawHandle(
         ctx,
         this.x + this.maxWidth + this.outerPadding,
-        this.y - this.outerPadding,
+        this.y - this.outerPadding
       );
       this.drawHandle(
         ctx,
         this.x - this.outerPadding,
-        this.y + this.height + this.outerPadding,
+        this.y + this.height + this.outerPadding
       );
       this.drawHandle(
         ctx,
         this.x + this.maxWidth + this.outerPadding,
-        this.y + this.height + this.outerPadding,
+        this.y + this.height + this.outerPadding
       );
     }
   }
 
   private drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = 'white';
     ctx.beginPath();
     ctx.arc(x, y, handleRadius, 0, Math.PI * 2);
     ctx.fill();
   }
 
   onMouseDown(mouseX: number, mouseY: number) {
-    if (this.isSelected) {
+    if(this.isSelected) {
       const handle = this.getHandleAtPosition(mouseX, mouseY);
-      if (handle) {
+      if(handle) {
         this.resizingHandle = handle;
         this.lastMouseX = mouseX;
         this.lastMouseY = mouseY;
@@ -211,7 +211,7 @@ export class TextDrawable extends Drawable {
       }
     }
 
-    if (this.containsPoint(mouseX, mouseY)) {
+    if(this.containsPoint(mouseX, mouseY)) {
       this.isDragging = true;
       this.lastMouseX = mouseX;
       this.lastMouseY = mouseY;
@@ -219,11 +219,11 @@ export class TextDrawable extends Drawable {
   }
 
   onMouseMove(x: number, y: number, ctx: CanvasRenderingContext2D) {
-    if (this.lastMouseY === null || this.lastMouseX === null) return;
+    if(this.lastMouseY === null || this.lastMouseX === null) return;
 
-    if (this.resizingHandle) {
+    if(this.resizingHandle) {
       this.resizeText(x, y);
-    } else if (this.isDragging) {
+    } else if(this.isDragging) {
       const dx = x - this.lastMouseX;
       const dy = y - this.lastMouseY;
 
@@ -239,21 +239,21 @@ export class TextDrawable extends Drawable {
 
   private updateCursorStyle(x: number, y: number) {
     const handle = this.getHandleAtPosition(x, y);
-    if (handle) {
-      switch (handle) {
-        case "top-left":
-        case "bottom-right":
-          this.updateCursor("nwse-resize");
+    if(handle) {
+      switch(handle) {
+        case 'top-left':
+        case 'bottom-right':
+          this.updateCursor('nwse-resize');
           break;
-        case "top-right":
-        case "bottom-left":
-          this.updateCursor("nesw-resize");
+        case 'top-right':
+        case 'bottom-left':
+          this.updateCursor('nesw-resize');
           break;
       }
-    } else if (this.containsPoint(x, y)) {
-      this.updateCursor("move");
+    } else if(this.containsPoint(x, y)) {
+      this.updateCursor('move');
     } else {
-      this.updateCursor("default");
+      this.updateCursor('default');
     }
   }
 
@@ -276,24 +276,24 @@ export class TextDrawable extends Drawable {
     const key = event.key;
 
     // If escape - diselect
-    if (key === "Escape") {
+    if(key === 'Escape') {
       this.isSelected = false;
-    } else if (key === "Enter") {
+    } else if(key === 'Enter') {
       // Prevent multiple empty lines
-      if (this.lines[this.currentLine].text === "") return;
-      this.lines.splice(this.currentLine + 1, 0, { text: "", width: 0 });
+      if(this.lines[this.currentLine].text === '') return;
+      this.lines.splice(this.currentLine + 1, 0, {text: '', width: 0});
       this.currentLine++;
-    } else if (key === "Backspace") {
-      if (event.metaKey || event.ctrlKey) {
+    } else if(key === 'Backspace') {
+      if(event.metaKey || event.ctrlKey) {
         this.onRemove(this.id);
         return;
       }
 
-      if (this.lines[this.currentLine].text.length > 0) {
+      if(this.lines[this.currentLine].text.length > 0) {
         this.lines[this.currentLine].text = this.lines[
-          this.currentLine
+        this.currentLine
         ].text.slice(0, -1);
-      } else if (this.currentLine > 0) {
+      } else if(this.currentLine > 0) {
         const previousLine = this.lines[this.currentLine - 1].text;
         this.lines.splice(this.currentLine, 1);
         this.currentLine--;
@@ -303,7 +303,7 @@ export class TextDrawable extends Drawable {
         // The same as iOS app behavior
         this.onRemove(this.id);
       }
-    } else if (key.length === 1) {
+    } else if(key.length === 1) {
       this.lines[this.currentLine].text += key;
     }
 
@@ -344,26 +344,26 @@ export class TextDrawable extends Drawable {
 
   private getHandleAtPosition(x: number, y: number): ResizeHandle | null {
     const handles: [ResizeHandle, number, number][] = [
-      ["top-left", this.x - this.outerPadding, this.y - this.outerPadding],
+      ['top-left', this.x - this.outerPadding, this.y - this.outerPadding],
       [
-        "top-right",
+        'top-right',
         this.x + this.maxWidth + this.outerPadding,
-        this.y - this.outerPadding,
+        this.y - this.outerPadding
       ],
       [
-        "bottom-left",
+        'bottom-left',
         this.x - this.outerPadding,
-        this.y + this.height + this.outerPadding,
+        this.y + this.height + this.outerPadding
       ],
       [
-        "bottom-right",
+        'bottom-right',
         this.x + this.maxWidth + this.outerPadding,
-        this.y + this.height + this.outerPadding,
-      ],
+        this.y + this.height + this.outerPadding
+      ]
     ];
 
-    for (const [handle, hx, hy] of handles) {
-      if (Math.sqrt((x - hx) ** 2 + (y - hy) ** 2) <= handleRadius) {
+    for(const [handle, hx, hy] of handles) {
+      if(Math.sqrt((x - hx) ** 2 + (y - hy) ** 2) <= handleRadius) {
         return handle;
       }
     }
@@ -371,7 +371,7 @@ export class TextDrawable extends Drawable {
     return null;
   }
   private resizeText(mouseX: number, mouseY: number) {
-    if (this.lastMouseX === null || this.lastMouseY === null) return;
+    if(this.lastMouseX === null || this.lastMouseY === null) return;
 
     const dx = mouseX - this.lastMouseX;
     const dy = mouseY - this.lastMouseY;
@@ -382,46 +382,46 @@ export class TextDrawable extends Drawable {
 
     const aspectRatio = this.maxWidth / this.height;
 
-    switch (this.resizingHandle) {
-      case "top-left":
+    switch(this.resizingHandle) {
+      case 'top-left':
         newWidth = this.maxWidth - dx;
         newHeight = this.height - dy;
         newX = this.x + dx;
         newY = this.y + dy;
         break;
-      case "top-right":
+      case 'top-right':
         newWidth = this.maxWidth + dx;
         newHeight = this.height - dy;
         newY = this.y + dy;
         break;
-      case "bottom-left":
+      case 'bottom-left':
         newWidth = this.maxWidth - dx;
         newHeight = this.height + dy;
         newX = this.x + dx;
         break;
-      case "bottom-right":
+      case 'bottom-right':
         newWidth = this.maxWidth + dx;
         newHeight = this.height + dy;
         break;
     }
 
     // Aspect ratio
-    if (newWidth / newHeight > aspectRatio) {
+    if(newWidth / newHeight > aspectRatio) {
       newHeight = newWidth / aspectRatio;
     } else {
       newWidth = newHeight * aspectRatio;
     }
 
     const minSize = 10;
-    if (newWidth < minSize || newHeight < minSize) {
+    if(newWidth < minSize || newHeight < minSize) {
       return;
     }
 
     const scale = newWidth / this.maxWidth;
-    if (this.resizingHandle?.includes("left")) {
+    if(this.resizingHandle?.includes('left')) {
       newX = this.x + (this.maxWidth - newWidth);
     }
-    if (this.resizingHandle?.includes("top")) {
+    if(this.resizingHandle?.includes('top')) {
       newY = this.y + (this.height - newHeight);
     }
 
@@ -443,14 +443,14 @@ export class TextDrawable extends Drawable {
     const clone = new TextDrawable(
       this.x,
       this.y,
-      "",
+      '',
       this.fontSize,
       this.fontFamily,
       this.color,
       this.textAlign,
       this.textStyle,
       this.onRemove,
-      this.updateCursor,
+      this.updateCursor
     );
     clone.lines = JSON.parse(JSON.stringify(this.lines));
     clone.currentLine = this.currentLine;

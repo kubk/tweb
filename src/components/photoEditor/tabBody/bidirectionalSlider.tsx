@@ -1,4 +1,4 @@
-import "./bidirectionalSlider.scss";
+import './bidirectionalSlider.scss';
 
 export const BidirectionalSlider = (props: {
   value: number;
@@ -15,13 +15,13 @@ export const BidirectionalSlider = (props: {
   const withHeader = props.withHeader === undefined ? true : props.withHeader;
 
   return (
-    <div class={"bidirectionalSlider"}>
+    <div class={'bidirectionalSlider'}>
       <div class="slider-container">
         {withHeader && (
           <div class="slider-header">
             <span class="slider-name">{props.name}</span>
-            <span class={`slider-value ${props.value !== 0 ? "active" : ""}`}>
-              {isNegative() ? "-" : ""}
+            <span class={`slider-value ${props.value !== 0 ? 'active' : ''}`}>
+              {isNegative() ? '-' : ''}
               {absValue()}
             </span>
           </div>
@@ -31,15 +31,15 @@ export const BidirectionalSlider = (props: {
             class="slider-fill"
             style={{
               width: `${Math.abs(percentage() - 50)}%`,
-              left: isNegative()
-                ? `${50 - Math.abs(percentage() - 50)}%`
-                : "50%",
+              left: isNegative() ?
+                `${50 - Math.abs(percentage() - 50)}%` :
+                '50%'
             }}
           />
           <div
             class="slider-thumb"
             style={{
-              left: `calc(${percentage()}% - 8px)`,
+              left: `calc(${percentage()}% - 8px)`
             }}
           />
           <input

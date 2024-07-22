@@ -1,46 +1,46 @@
-import { Tool } from "../../canvasManager";
-import "./drawTabBody.scss";
-import { For, JSXElement } from "solid-js";
+import {Tool} from '../../canvasManager';
+import './drawTabBody.scss';
+import {For, JSXElement} from 'solid-js';
 import {
   PenArrowIcon,
   PenBlurIcon,
   PenBrushIcon,
   PenEraserIcon,
   PenIcon,
-  PenNeonIcon,
-} from "./icons";
-import { ColorSizePicker } from "./colorSizePicker";
-import { useCanvasManager } from "../../photoEditor";
+  PenNeonIcon
+} from './icons';
+import {ColorSizePicker} from './colorSizePicker';
+import {useCanvasManager} from '../../photoEditor';
 
 export const DrawTabBody = () => {
   const canvasManager = useCanvasManager();
   const pens: Array<{ tool: Tool; icon: JSXElement; title: string }> = [
     {
-      tool: "pen",
+      tool: 'pen',
       icon: <PenIcon color={canvasManager.penColor[0]()} />,
-      title: "Pen",
+      title: 'Pen'
     },
     {
-      tool: "arrow",
+      tool: 'arrow',
       icon: <PenArrowIcon color={canvasManager.arrowColor[0]()} />,
-      title: "Arrow",
+      title: 'Arrow'
     },
     {
-      tool: "brush",
+      tool: 'brush',
       icon: <PenBrushIcon color={canvasManager.brushColor[0]()} />,
-      title: "Brush",
+      title: 'Brush'
     },
     {
-      tool: "neon",
+      tool: 'neon',
       icon: <PenNeonIcon color={canvasManager.neonColor[0]()} />,
-      title: "Neon",
+      title: 'Neon'
     },
-    { tool: "blur", icon: <PenBlurIcon />, title: "Blur" },
-    { tool: "eraser", icon: <PenEraserIcon />, title: "Eraser" },
+    {tool: 'blur', icon: <PenBlurIcon />, title: 'Blur'},
+    {tool: 'eraser', icon: <PenEraserIcon />, title: 'Eraser'}
   ];
 
   return (
-    <div class={"drawTabBody"}>
+    <div class={'drawTabBody'}>
       <ColorSizePicker
         size={canvasManager.drawSize}
         currentColor={() => canvasManager.currentDrawColor()}
@@ -52,7 +52,7 @@ export const DrawTabBody = () => {
 
       <div class="penListWrapper">
         <div class="title">Tool</div>
-        <div class={"penList"}>
+        <div class={'penList'}>
           <For each={pens}>
             {(pen) => {
               const [tool] = canvasManager.tool;
@@ -60,19 +60,19 @@ export const DrawTabBody = () => {
                 <div
                   class="pen"
                   classList={{
-                    selected: tool() === pen.tool,
+                    selected: tool() === pen.tool
                   }}
                   onClick={() => {
                     canvasManager.setTool(pen.tool);
                   }}
                 >
                   <div
-                    class={"penShadow"}
+                    class={'penShadow'}
                     classList={{
-                      selected: tool() === pen.tool,
+                      selected: tool() === pen.tool
                     }}
                   />
-                  <div class={"penIcon"}>{pen.icon}</div>
+                  <div class={'penIcon'}>{pen.icon}</div>
                   {pen.title}
                 </div>
               );

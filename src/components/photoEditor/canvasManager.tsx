@@ -1,42 +1,42 @@
-import { createSignal, Signal } from "solid-js";
-import { createMutable, modifyMutable, reconcile } from "solid-js/store";
-import { Drawable } from "./drawable/drawable";
+import {createSignal, Signal} from 'solid-js';
+import {createMutable, modifyMutable, reconcile} from 'solid-js/store';
+import {Drawable} from './drawable/drawable';
 import {
   copyEffectsFromTo,
   createEffects,
   duplicateEffects,
-  Effects,
-} from "./effects/effects";
-import { assert } from "./lib/assert";
-import { DrawingOptions } from "./drawable/options";
-import { SmoothedPenTool } from "./drawable/smoothedPenTool";
-import { ArrowTool } from "./drawable/arrowTool";
-import { BrushTool } from "./drawable/brushTool";
-import { NeonTool } from "./drawable/neonTool";
-import { ImageDrawable } from "./drawable/imageDrawable";
-import { SimplePenTool } from "./drawable/simplePenTool";
-import { EraserTool } from "./drawable/eraserTool";
-import { fitImageIntoCanvas } from "./crop/fitImageIntoCanvas";
-import { AspectRatio, CropAreaDrawable } from "./drawable/cropAreaDrawable";
-import { TextAlign, TextDrawable, TextStyle } from "./drawable/textDrawable";
-import { fonts } from "./tabBody/text/textTabBody";
-import { createSignalWithOnchange } from "./lib/createSignalWithOnchange";
+  Effects
+} from './effects/effects';
+import {assert} from './lib/assert';
+import {DrawingOptions} from './drawable/options';
+import {SmoothedPenTool} from './drawable/smoothedPenTool';
+import {ArrowTool} from './drawable/arrowTool';
+import {BrushTool} from './drawable/brushTool';
+import {NeonTool} from './drawable/neonTool';
+import {ImageDrawable} from './drawable/imageDrawable';
+import {SimplePenTool} from './drawable/simplePenTool';
+import {EraserTool} from './drawable/eraserTool';
+import {fitImageIntoCanvas} from './crop/fitImageIntoCanvas';
+import {AspectRatio, CropAreaDrawable} from './drawable/cropAreaDrawable';
+import {TextAlign, TextDrawable, TextStyle} from './drawable/textDrawable';
+import {fonts} from './tabBody/text/textTabBody';
+import {createSignalWithOnchange} from './lib/createSignalWithOnchange';
 
-export type Tool = "pen" | "arrow" | "brush" | "neon" | "blur" | "eraser";
+export type Tool = 'pen' | 'arrow' | 'brush' | 'neon' | 'blur' | 'eraser';
 
 export type CropAction =
-  | { type: "rotate90" }
-  | { type: "flip" }
-  | { type: "rotate"; angle: number };
+  | { type: 'rotate90' }
+  | { type: 'flip' }
+  | { type: 'rotate'; angle: number };
 
 type Mode =
-  | { name: "idle" }
+  | { name: 'idle' }
   | {
-      name: "drawing";
+      name: 'drawing';
       currentLine?: Drawable;
     }
-  | { name: "dragging"; draggingObject: TextDrawable }
-  | { name: "cropping"; cropArea?: CropAreaDrawable };
+  | { name: 'dragging'; draggingObject: TextDrawable }
+  | { name: 'cropping'; cropArea?: CropAreaDrawable };
 
 export type State = {
   drawables: Drawable[];
@@ -46,12 +46,12 @@ export type State = {
   height: number;
 };
 
-const tabs = ["enhance", "crop", "text", "draw"] as const;
+const tabs = ['enhance', 'crop', 'text', 'draw'] as const;
 type EditorTab = (typeof tabs)[number];
 
 const undoStackLimit = 10;
 
-const drawingTools = ["pen", "arrow", "brush", "neon"] as const;
+const drawingTools = ['pen', 'arrow', 'brush', 'neon'] as const;
 type DrawingTool = (typeof drawingTools)[number];
 const isDrawingTool = (tool: Tool): tool is DrawingTool => {
   return drawingTools.includes(tool as any);
@@ -60,40 +60,40 @@ const isDrawingTool = (tool: Tool): tool is DrawingTool => {
 export class CanvasManager {
   undoStack: State[] = [];
   redoStack: State[] = [];
-  tab = createSignal<EditorTab>("enhance");
+  tab = createSignal<EditorTab>('enhance');
   touchedEffects: Set<keyof Effects> = new Set();
 
   drawSize = createSignal<number>(15);
-  penColor = createSignal<string>("#33C759");
-  arrowColor = createSignal<string>("#FFD60A");
-  brushColor = createSignal<string>("#FF8901");
-  neonColor = createSignal<string>("#62E5E0");
+  penColor = createSignal<string>('#33C759');
+  arrowColor = createSignal<string>('#FFD60A');
+  brushColor = createSignal<string>('#FF8901');
+  neonColor = createSignal<string>('#62E5E0');
   lastDrawableTool?: DrawingTool;
 
-  textColor = createSignalWithOnchange<string>("#FFFFFF", (value) => {
+  textColor = createSignalWithOnchange<string>('#FFFFFF', (value) => {
     this.updateTextColor(value);
   });
   textFont = createSignalWithOnchange<string>(fonts[0].fontFamily, (value) => {
     this.onTextFontUpdate(value);
   });
-  textAlign = createSignalWithOnchange<TextAlign>("left", (value) =>
-    this.onTextAlignUpdate(value),
+  textAlign = createSignalWithOnchange<TextAlign>('left', (value) =>
+    this.onTextAlignUpdate(value)
   );
-  textStyle = createSignalWithOnchange<TextStyle>("background", (value) => {
+  textStyle = createSignalWithOnchange<TextStyle>('background', (value) => {
     this.updateTextStyle(value);
   });
   textSize = createSignalWithOnchange<number>(24, (value) =>
-    this.onTextSizeChange(value),
+    this.onTextSizeChange(value)
   );
 
   cropAspectRatio = createSignal<AspectRatio | null>(null);
   freeAngle = createSignalWithOnchange(0, (value) => {
-    this.applyCropAction({ type: "rotate", angle: value });
+    this.applyCropAction({type: 'rotate', angle: value});
   });
 
-  tool = createSignal<Tool>("pen");
+  tool = createSignal<Tool>('pen');
 
-  mode = createMutable<Mode>({ name: "idle" });
+  mode = createMutable<Mode>({name: 'idle'});
   effectsUi = createMutable(createEffects());
   effectsApplied = createMutable(createEffects());
 
@@ -110,7 +110,7 @@ export class CanvasManager {
 
   constructor() {
     // @ts-ignore
-    window["editor"] = this;
+    window['editor'] = this;
 
     // load image
     const img = new Image();
@@ -118,23 +118,23 @@ export class CanvasManager {
     // img.src = "/img2.png";
     // img.src = "/img3.png";
     // img.src = "/portrait-middle.png";
-    img.src = "/hd-avif.avif";
+    img.src = '/hd-avif.avif';
     // img.src = "/vertical-low-res.jpeg";
     // img.src = "/vertical-high-res.jpeg";
     // img.src = "/small-white.png";
     // img.src = "/img-sq40x40.png";
     img.onload = () => {
       this.drawImage(img);
-      this.switchTab("text");
+      this.switchTab('text');
     };
   }
 
   init(
     canvas: HTMLCanvasElement | undefined,
-    canvasContainerRef: HTMLDivElement | undefined,
+    canvasContainerRef: HTMLDivElement | undefined
   ) {
-    if (!canvas || this.canvas !== null) return;
-    if (!canvasContainerRef) return;
+    if(!canvas || this.canvas !== null) return;
+    if(!canvasContainerRef) return;
     this.canvas = canvas;
     this.canvasContainerRef = canvasContainerRef;
     this.draw();
@@ -144,19 +144,19 @@ export class CanvasManager {
   switchTab(tab: EditorTab) {
     const [previousTab, setTab] = this.tab;
 
-    if (tab === previousTab()) {
+    if(tab === previousTab()) {
       return;
     }
 
-    if (tab !== "crop" && previousTab() === "crop") {
+    if(tab !== 'crop' && previousTab() === 'crop') {
       this.drawables = this.drawablesWithoutCropArea();
       this.draw();
     }
 
-    if (tab !== "text" && previousTab() === "text") {
-      this.setCursor("default");
+    if(tab !== 'text' && previousTab() === 'text') {
+      this.setCursor('default');
       this.drawables.forEach((drawable) => {
-        if (drawable instanceof TextDrawable) {
+        if(drawable instanceof TextDrawable) {
           drawable.isSelected = false;
         }
       });
@@ -165,20 +165,20 @@ export class CanvasManager {
 
     setTab(tab);
 
-    if (tab === "crop") {
+    if(tab === 'crop') {
       const cropAreaDrawable = this.createCropAreaDrawable();
       const [, setAspectRatio] = this.cropAspectRatio;
-      setAspectRatio("free");
+      setAspectRatio('free');
       this.drawables.push(cropAreaDrawable);
       modifyMutable(
         this.mode,
-        reconcile<Mode, Mode>({ name: "cropping", cropArea: cropAreaDrawable }),
+        reconcile<Mode, Mode>({name: 'cropping', cropArea: cropAreaDrawable})
       );
       this.draw();
-    } else if (tab === "draw") {
-      modifyMutable(this.mode, reconcile<Mode, Mode>({ name: "drawing" }));
+    } else if(tab === 'draw') {
+      modifyMutable(this.mode, reconcile<Mode, Mode>({name: 'drawing'}));
     } else {
-      modifyMutable(this.mode, reconcile<Mode, Mode>({ name: "idle" }));
+      modifyMutable(this.mode, reconcile<Mode, Mode>({name: 'idle'}));
     }
   }
 
@@ -188,10 +188,10 @@ export class CanvasManager {
       this.canvasSafe.height,
       (cursor) => {
         const [tab] = this.tab;
-        if (tab() === "crop") {
+        if(tab() === 'crop') {
           this.setCursor(cursor);
         }
-      },
+      }
     );
   }
 
@@ -203,7 +203,7 @@ export class CanvasManager {
     const [, setTool] = this.tool;
 
     const previousTool = this.tool[0]();
-    if (isDrawingTool(previousTool)) {
+    if(isDrawingTool(previousTool)) {
       this.lastDrawableTool = previousTool;
     }
 
@@ -213,24 +213,24 @@ export class CanvasManager {
   currentDrawColorSignal(): Signal<string> {
     const [tool] = this.tool;
     const signal = this.getDrawableTool(tool());
-    if (signal) {
+    if(signal) {
       return signal;
     }
-    if (!this.lastDrawableTool) {
+    if(!this.lastDrawableTool) {
       return this.penColor;
     }
     return this.getDrawableTool(this.lastDrawableTool) || this.penColor;
   }
 
   private getDrawableTool(tool: Tool): Signal<string> | null {
-    switch (tool) {
-      case "pen":
+    switch(tool) {
+      case 'pen':
         return this.penColor;
-      case "arrow":
+      case 'arrow':
         return this.arrowColor;
-      case "brush":
+      case 'brush':
         return this.brushColor;
-      case "neon":
+      case 'neon':
         return this.neonColor;
       default:
         return null;
@@ -247,7 +247,7 @@ export class CanvasManager {
   }
 
   private get canvasSafe() {
-    assert(this.canvas !== null, "Canvas is not initialized");
+    assert(this.canvas !== null, 'Canvas is not initialized');
     return this.canvas;
   }
 
@@ -255,33 +255,33 @@ export class CanvasManager {
     tool: Tool,
     options: DrawingOptions,
     mouseX: number,
-    mouseY: number,
+    mouseY: number
   ) {
-    switch (tool) {
-      case "pen":
+    switch(tool) {
+      case 'pen':
         return new SmoothedPenTool(options);
-      case "arrow":
+      case 'arrow':
         return new ArrowTool(mouseX, mouseY, options);
-      case "brush":
+      case 'brush':
         return new BrushTool(options);
-      case "neon":
+      case 'neon':
         return new NeonTool(options);
-      case "blur":
-      case "eraser": {
-        const mode = tool === "blur" ? "blur" : "eraser";
+      case 'blur':
+      case 'eraser': {
+        const mode = tool === 'blur' ? 'blur' : 'eraser';
 
         const imageData = (() => {
-          if (mode === "blur") {
+          if(mode === 'blur') {
             return this.getFullCanvasData();
           }
-          if (mode === "eraser") {
+          if(mode === 'eraser') {
             const imageDrawable = this.getLastImageDrawable();
             return imageDrawable ? imageDrawable.getImageData() : null;
           }
           return mode satisfies never;
         })();
 
-        if (!imageData) {
+        if(!imageData) {
           return new SimplePenTool(options);
         }
 
@@ -289,7 +289,7 @@ export class CanvasManager {
           size: options.size,
           width: this.canvasWidth,
           height: this.canvasHeight,
-          imageData: imageData,
+          imageData: imageData
         });
       }
       default:
@@ -304,11 +304,11 @@ export class CanvasManager {
     const [tab] = this.tab;
 
     const mode = this.mode;
-    if (mode?.name === "drawing") {
+    if(mode?.name === 'drawing') {
       const color = this.currentDrawColor();
       const [size] = this.drawSize;
       const [tool] = this.tool;
-      const options = { color: color, size: size() };
+      const options = {color: color, size: size()};
       const currentLine = this.createTool(tool(), options, mouseX, mouseY);
       currentLine.onMouseMove(mouseX, mouseY);
       mode.currentLine = currentLine;
@@ -316,34 +316,34 @@ export class CanvasManager {
       this.saveState();
     }
 
-    if (mode.name === "idle") {
-      if (tab() !== "text") {
+    if(mode.name === 'idle') {
+      if(tab() !== 'text') {
         return;
       }
 
       const objectToDrag = this.drawables
-        .filter((drawable) => drawable instanceof TextDrawable)
-        .find((drawable) => drawable.containsPoint(mouseX, mouseY));
+      .filter((drawable) => drawable instanceof TextDrawable)
+      .find((drawable) => drawable.containsPoint(mouseX, mouseY));
 
       const hasSelectedText = this.drawables.find(
-        (drawable) => drawable instanceof TextDrawable && drawable.isSelected,
+        (drawable) => drawable instanceof TextDrawable && drawable.isSelected
       );
 
-      if (hasSelectedText) {
+      if(hasSelectedText) {
         this.drawables.forEach((drawable) => {
-          if (drawable instanceof TextDrawable) {
+          if(drawable instanceof TextDrawable) {
             drawable.isSelected = false;
           }
         });
         this.draw();
-        this.setCursor("crosshair");
+        this.setCursor('crosshair');
       }
 
-      if (!hasSelectedText && !objectToDrag) {
+      if(!hasSelectedText && !objectToDrag) {
         this.addText(mouseX, mouseY);
       }
 
-      if (!objectToDrag) {
+      if(!objectToDrag) {
         return;
       }
 
@@ -353,34 +353,34 @@ export class CanvasManager {
       modifyMutable(
         this.mode,
         reconcile<Mode, Mode>({
-          name: "dragging",
-          draggingObject: objectToDrag,
-        }),
+          name: 'dragging',
+          draggingObject: objectToDrag
+        })
       );
       objectToDrag.onMouseDown(mouseX, mouseY);
       this.draw();
       this.saveState();
     }
 
-    if (mode.name === "cropping") {
+    if(mode.name === 'cropping') {
       mode.cropArea?.onMouseDown(mouseX, mouseY);
     }
   };
 
   private selectTextDrawable(selected?: Drawable) {
     this.drawables.forEach((drawable) => {
-      if (drawable instanceof TextDrawable) {
+      if(drawable instanceof TextDrawable) {
         drawable.isSelected = false;
       }
     });
 
-    if (selected && selected instanceof TextDrawable) {
+    if(selected && selected instanceof TextDrawable) {
       selected.isSelected = true;
     }
   }
 
   private onMouseMove = (e: MouseEvent) => {
-    if (!this.mode) {
+    if(!this.mode) {
       return;
     }
 
@@ -388,19 +388,19 @@ export class CanvasManager {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    if (this.tab[0]() === "text") {
-      if (this.textDrawableResizing) {
+    if(this.tab[0]() === 'text') {
+      if(this.textDrawableResizing) {
         this.textDrawableResizing.onMouseMove(mouseX, mouseY, this.ctx);
         this.draw();
       } else {
         const objectToMove = this.drawables
-          .filter(
-            (drawable): drawable is TextDrawable =>
-              drawable instanceof TextDrawable,
-          )
-          .find((drawable) => drawable.containsPoint(mouseX, mouseY));
+        .filter(
+          (drawable): drawable is TextDrawable =>
+            drawable instanceof TextDrawable
+        )
+        .find((drawable) => drawable.containsPoint(mouseX, mouseY));
 
-        if (objectToMove) {
+        if(objectToMove) {
           this.textDrawableResizing = objectToMove;
           objectToMove.onMouseMove(mouseX, mouseY, this.ctx);
           this.draw();
@@ -408,17 +408,17 @@ export class CanvasManager {
       }
     }
 
-    if (this.mode.name === "drawing" && this.mode.currentLine) {
+    if(this.mode.name === 'drawing' && this.mode.currentLine) {
       this.mode.currentLine.onMouseMove(mouseX, mouseY, this.ctx);
       this.draw();
-    } else if (
-      this.mode.name === "dragging" &&
+    } else if(
+      this.mode.name === 'dragging' &&
       this.mode.draggingObject?.isDragging
     ) {
       this.mode.draggingObject.onMouseMove(mouseX, mouseY, this.ctx);
       this.selectTextDrawable(this.mode.draggingObject);
       this.draw();
-    } else if (this.mode.name === "cropping") {
+    } else if(this.mode.name === 'cropping') {
       this.mode.cropArea?.onMouseMove(mouseX, mouseY, this.ctx);
       this.draw();
     }
@@ -426,29 +426,29 @@ export class CanvasManager {
 
   private onMouseUp = () => {
     const mode = this.mode;
-    if (mode?.name === "drawing" && mode.currentLine) {
+    if(mode?.name === 'drawing' && mode.currentLine) {
       mode.currentLine = undefined;
-    } else if (mode?.name === "dragging" && mode.draggingObject) {
+    } else if(mode?.name === 'dragging' && mode.draggingObject) {
       mode.draggingObject.onMouseUp();
-      modifyMutable(this.mode, reconcile<Mode, Mode>({ name: "idle" }));
-    } else if (mode?.name === "cropping") {
+      modifyMutable(this.mode, reconcile<Mode, Mode>({name: 'idle'}));
+    } else if(mode?.name === 'cropping') {
       mode.cropArea?.onMouseUp();
     }
   };
 
   private setUpListeners() {
-    this.canvasSafe.addEventListener("mousedown", this.onMouseDown);
-    this.canvasSafe.addEventListener("mousemove", this.onMouseMove);
-    this.canvasSafe.addEventListener("mouseup", this.onMouseUp);
-    document.addEventListener("keydown", this.onKeyDown);
+    this.canvasSafe.addEventListener('mousedown', this.onMouseDown);
+    this.canvasSafe.addEventListener('mousemove', this.onMouseMove);
+    this.canvasSafe.addEventListener('mouseup', this.onMouseUp);
+    document.addEventListener('keydown', this.onKeyDown);
   }
 
   onChangeAspectRatio(aspectRatio?: AspectRatio) {
-    if (this.mode?.name !== "cropping") {
+    if(this.mode?.name !== 'cropping') {
       return;
     }
 
-    if (!this.mode.cropArea) {
+    if(!this.mode.cropArea) {
       const cropArea = this.createCropAreaDrawable();
       this.mode.cropArea = cropArea;
       this.drawables.push(cropArea);
@@ -464,13 +464,13 @@ export class CanvasManager {
   }
 
   applyCrop() {
-    if (this.mode?.name !== "cropping" || !this.mode.cropArea) {
+    if(this.mode?.name !== 'cropping' || !this.mode.cropArea) {
       return;
     }
     const cropArea = this.mode.cropArea;
     this.drawables = this.drawablesWithoutCropArea();
     this.mode.cropArea = undefined;
-    const { x, y, width, height } = cropArea.getCroppedRectangleCoordinates();
+    const {x, y, width, height} = cropArea.getCroppedRectangleCoordinates();
     this.draw();
     this.saveState();
     const croppedImageData = this.ctx.getImageData(x, y, width, height);
@@ -480,7 +480,7 @@ export class CanvasManager {
       width,
       height,
       this.effectsApplied,
-      this.touchedEffects,
+      this.touchedEffects
     );
     this.drawables.push(imageDrawable);
     this.canvasSafe.width = width;
@@ -491,7 +491,7 @@ export class CanvasManager {
   }
 
   applyCropAction(action: CropAction) {
-    if (this.mode.name !== "cropping") {
+    if(this.mode.name !== 'cropping') {
       return;
     }
 
@@ -505,20 +505,20 @@ export class CanvasManager {
       this.canvasWidth,
       this.canvasHeight,
       this.effectsApplied,
-      this.touchedEffects,
+      this.touchedEffects
     );
 
-    if (action.type === "rotate90") {
-      const { width, drawable, height } = imageDrawable.rotate90();
+    if(action.type === 'rotate90') {
+      const {width, drawable, height} = imageDrawable.rotate90();
       this.drawables.push(drawable);
       this.canvasSafe.width = width;
       this.canvasSafe.height = height;
       this.onResetRotationAngle?.();
-    } else if (action.type === "flip") {
+    } else if(action.type === 'flip') {
       const newDrawable = imageDrawable.flip();
       this.drawables.push(newDrawable);
       this.onResetRotationAngle?.();
-    } else if (action.type === "rotate") {
+    } else if(action.type === 'rotate') {
       const id = this.getLastImageDrawable();
       assert(id);
       id.rotate(action.angle);
@@ -530,10 +530,10 @@ export class CanvasManager {
   }
 
   get ctx() {
-    const ctx = this.canvasSafe.getContext("2d", {
-      willReadFrequently: true,
+    const ctx = this.canvasSafe.getContext('2d', {
+      willReadFrequently: true
     });
-    assert(ctx, "Canvas context is null");
+    assert(ctx, 'Canvas context is null');
     return ctx;
   }
 
@@ -547,14 +547,14 @@ export class CanvasManager {
 
   private drawablesWithoutCropArea() {
     return this.drawables.filter(
-      (drawable) => !(drawable instanceof CropAreaDrawable),
+      (drawable) => !(drawable instanceof CropAreaDrawable)
     );
   }
 
   saveState() {
     this.undoStack.push({
       drawables: this.drawablesWithoutCropArea().map((drawable) =>
-        drawable.clone(),
+        drawable.clone()
       ),
       width: this.canvasWidth,
       height: this.canvasHeight,
@@ -562,11 +562,11 @@ export class CanvasManager {
         0,
         0,
         this.canvasWidth,
-        this.canvasHeight,
+        this.canvasHeight
       ),
-      effects: duplicateEffects(this.effectsApplied),
+      effects: duplicateEffects(this.effectsApplied)
     });
-    if (this.undoStack.length > undoStackLimit) {
+    if(this.undoStack.length > undoStackLimit) {
       this.undoStack.shift();
     }
 
@@ -581,22 +581,22 @@ export class CanvasManager {
   }
 
   undo() {
-    if (this.undoStack.length > 0) {
+    if(this.undoStack.length > 0) {
       this.redoStack.push({
         drawables: this.drawables,
         imageData: this.getFullCanvasData(),
         effects: duplicateEffects(this.effectsApplied),
         width: this.canvasWidth,
-        height: this.canvasHeight,
+        height: this.canvasHeight
       });
       const state = this.undoStack.pop();
-      if (!state) {
+      if(!state) {
         return;
       }
       this.drawables = state.drawables;
       copyEffectsFromTo(state.effects, this.effectsApplied);
       copyEffectsFromTo(state.effects, this.effectsUi);
-      if (
+      if(
         state.width !== this.canvasWidth ||
         state.height !== this.canvasHeight
       ) {
@@ -606,7 +606,7 @@ export class CanvasManager {
       this.ctx.putImageData(state.imageData, 0, 0);
 
       // Allow clicking 'Undo' after cropping
-      if (this.mode.name === "cropping" && this.mode.cropArea) {
+      if(this.mode.name === 'cropping' && this.mode.cropArea) {
         this.mode.cropArea = undefined;
       }
     }
@@ -615,22 +615,22 @@ export class CanvasManager {
   }
 
   redo() {
-    if (this.redoStack.length > 0) {
+    if(this.redoStack.length > 0) {
       this.undoStack.push({
         drawables: this.drawables,
         imageData: this.getFullCanvasData(),
         height: this.canvasHeight,
         width: this.canvasWidth,
-        effects: duplicateEffects(this.effectsApplied),
+        effects: duplicateEffects(this.effectsApplied)
       });
       const state = this.redoStack.pop();
-      if (!state) {
+      if(!state) {
         return;
       }
       this.drawables = state.drawables;
       copyEffectsFromTo(state.effects, this.effectsApplied);
       copyEffectsFromTo(state.effects, this.effectsUi);
-      if (
+      if(
         state.width !== this.canvasWidth ||
         state.height !== this.canvasHeight
       ) {
@@ -645,7 +645,7 @@ export class CanvasManager {
 
   private getLastImageDrawable(): ImageDrawable | undefined {
     const imageDrawables: Array<ImageDrawable> = this.drawables.filter(
-      (drawable) => drawable instanceof ImageDrawable,
+      (drawable) => drawable instanceof ImageDrawable
     ) as any;
 
     return imageDrawables.length ? imageDrawables.at(-1) : undefined;
@@ -675,15 +675,15 @@ export class CanvasManager {
 
   async drawImage(img: HTMLImageElement) {
     const containerWidth = this.canvasContainerRef?.clientWidth;
-    assert(containerWidth, "Container width is null");
+    assert(containerWidth, 'Container width is null');
     const containerHeight = this.canvasContainerRef?.clientHeight;
-    assert(containerHeight, "Container height is null");
-    const { width, height } = fitImageIntoCanvas(
+    assert(containerHeight, 'Container height is null');
+    const {width, height} = fitImageIntoCanvas(
       containerWidth,
       // -100 to accommodate angle picker in crop mode
       containerHeight - 100,
       img.width,
-      img.height,
+      img.height
     );
 
     this.canvasSafe.width = Math.min(width, containerWidth);
@@ -695,26 +695,26 @@ export class CanvasManager {
         width,
         height,
         this.effectsApplied,
-        this.touchedEffects,
-      ),
+        this.touchedEffects
+      )
     );
     this.draw();
   }
 
   isApplyCropVisible() {
     const mode = this.mode;
-    if (mode?.name === "cropping") {
+    if(mode?.name === 'cropping') {
       return !!mode.cropArea;
     }
     return false;
   }
 
   dispose() {
-    if (!this.canvas) return;
-    this.canvas.removeEventListener("mousedown", this.onMouseDown);
-    this.canvas.removeEventListener("mousemove", this.onMouseMove);
-    this.canvas.removeEventListener("mouseup", this.onMouseUp);
-    document.removeEventListener("keydown", this.onKeyDown);
+    if(!this.canvas) return;
+    this.canvas.removeEventListener('mousedown', this.onMouseDown);
+    this.canvas.removeEventListener('mousemove', this.onMouseMove);
+    this.canvas.removeEventListener('mouseup', this.onMouseUp);
+    document.removeEventListener('keydown', this.onKeyDown);
   }
 
   syncHistoryWithSignals() {
@@ -733,14 +733,14 @@ export class CanvasManager {
     const textDrawable = new TextDrawable(
       x,
       y,
-      "",
+      '',
       textSize(),
       textFont(),
       textColor(),
       textAlign(),
       textStyle(),
       this.onTextDrawableRemove,
-      this.setCursor,
+      this.setCursor
     );
     this.selectTextDrawable(textDrawable);
     this.drawables.push(textDrawable);
@@ -749,7 +749,7 @@ export class CanvasManager {
 
   private onTextDrawableRemove = (id: number) => {
     this.drawables = this.drawables.filter((drawable) =>
-      drawable instanceof TextDrawable ? drawable.id !== id : true,
+      drawable instanceof TextDrawable ? drawable.id !== id : true
     );
     this.draw();
   };
@@ -757,9 +757,9 @@ export class CanvasManager {
   private onKeyDown = (event: KeyboardEvent) => {
     const [tab] = this.tab;
     // Check for undo: Ctrl+Z (Windows/Linux) or Command+Z (Mac)
-    if (
+    if(
       (event.ctrlKey || event.metaKey) &&
-      event.key.toLowerCase() === "z" &&
+      event.key.toLowerCase() === 'z' &&
       !event.shiftKey
     ) {
       event.preventDefault();
@@ -768,17 +768,17 @@ export class CanvasManager {
     }
 
     // Check for redo: Ctrl+Shift+Z (Windows/Linux) or Command+Shift+Z (Mac)
-    if (
+    if(
       (event.ctrlKey || event.metaKey) &&
       event.shiftKey &&
-      event.key.toLowerCase() === "z"
+      event.key.toLowerCase() === 'z'
     ) {
       event.preventDefault();
       this.redo();
       return;
     }
 
-    if (tab() === "text") {
+    if(tab() === 'text') {
       this.findTextAndDo((selectedTextDrawable) => {
         selectedTextDrawable.onKeyPress(event);
       });
@@ -817,9 +817,9 @@ export class CanvasManager {
 
   private findTextAndDo(cb: (selectedTextDrawable: TextDrawable) => void) {
     const selectedTextDrawable = this.drawables.find(
-      (drawable) => drawable instanceof TextDrawable && drawable.isSelected,
+      (drawable) => drawable instanceof TextDrawable && drawable.isSelected
     );
-    if (!selectedTextDrawable) return;
+    if(!selectedTextDrawable) return;
     assert(selectedTextDrawable instanceof TextDrawable);
     cb(selectedTextDrawable);
     this.draw();

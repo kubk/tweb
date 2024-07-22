@@ -1,4 +1,4 @@
-import { Effects } from "./effects";
+import {Effects} from './effects';
 
 const BRIGHTNESS_FACTOR = 2.55;
 const CONTRAST_FACTOR = 1 / 255;
@@ -17,12 +17,12 @@ export const applyEffects = (
   options: {
     imageWidth: number;
     imageHeight: number;
-  },
+  }
 ) => {
   const data = new Uint8ClampedArray(imageData.data);
-  const { imageWidth, imageHeight } = options;
+  const {imageWidth, imageHeight} = options;
 
-  if (touchedEffects.size === 0) {
+  if(touchedEffects.size === 0) {
     return;
   }
 
@@ -46,50 +46,50 @@ export const applyEffects = (
 
   const touchedEffectsArray = Array.from(touchedEffects);
 
-  for (let i = 0; i < data.length; i += 4) {
+  for(let i = 0; i < data.length; i += 4) {
     let r = data[i];
     let g = data[i + 1];
     let b = data[i + 2];
 
     const avg = (r + g + b) / 3;
 
-    for (const effect of touchedEffectsArray) {
-      switch (effect) {
-        case "brightness":
+    for(const effect of touchedEffectsArray) {
+      switch(effect) {
+        case 'brightness':
           r += brightness;
           g += brightness;
           b += brightness;
           break;
-        case "contrast":
+        case 'contrast':
           r = (r - 128) * contrast + 128;
           g = (g - 128) * contrast + 128;
           b = (b - 128) * contrast + 128;
           break;
-        case "saturation":
+        case 'saturation':
           r = avg + (r - avg) * saturation;
           g = avg + (g - avg) * saturation;
           b = avg + (b - avg) * saturation;
           break;
-        case "warmth":
+        case 'warmth':
           r += warmth;
           b -= warmth;
           break;
-        case "fade":
+        case 'fade':
           r *= fade;
           g *= fade;
           b *= fade;
           break;
-        case "highlights":
-          if (r > 128) r += highlights;
-          if (g > 128) g += highlights;
-          if (b > 128) b += highlights;
+        case 'highlights':
+          if(r > 128) r += highlights;
+          if(g > 128) g += highlights;
+          if(b > 128) b += highlights;
           break;
-        case "shadows":
-          if (r < 128) r += shadows;
-          if (g < 128) g += shadows;
-          if (b < 128) b += shadows;
+        case 'shadows':
+          if(r < 128) r += shadows;
+          if(g < 128) g += shadows;
+          if(b < 128) b += shadows;
           break;
-        case "vignette":
+        case 'vignette':
           const x = (i / 4) % imageWidth;
           const y = Math.floor(i / 4 / imageWidth);
           const distX = Math.abs(x - centerX);
@@ -100,18 +100,18 @@ export const applyEffects = (
           g *= vignetteFactor;
           b *= vignetteFactor;
           break;
-        case "grain":
+        case 'grain':
           const grainValue = (Math.random() - 0.5) * grain;
           r += grainValue;
           g += grainValue;
           b += grainValue;
           break;
-        case "sharpen":
+        case 'sharpen':
           r += (r - avg) * sharpen;
           g += (g - avg) * sharpen;
           b += (b - avg) * sharpen;
           break;
-        case "enhance":
+        case 'enhance':
           r = (r - 128) * (1 + enhance) + 128;
           g = (g - 128) * (1 + enhance) + 128;
           b = (b - 128) * (1 + enhance) + 128;

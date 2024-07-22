@@ -1,5 +1,5 @@
-import { Drawable } from "./drawable";
-import { DrawingOptions } from "./options";
+import {Drawable} from './drawable';
+import {DrawingOptions} from './options';
 
 export class ArrowTool extends Drawable {
   private startX: number;
@@ -26,7 +26,7 @@ export class ArrowTool extends Drawable {
 
   draw(ctx: CanvasRenderingContext2D) {
     const defaultLineCap = ctx.lineCap;
-    ctx.lineCap = "round";
+    ctx.lineCap = 'round';
 
     const context = ctx,
       fromX = this.startX,
@@ -48,12 +48,12 @@ export class ArrowTool extends Drawable {
     context.beginPath();
     context.moveTo(
       tox - headLength * Math.cos(angle - Math.PI / 6),
-      toy - headLength * Math.sin(angle - Math.PI / 6),
+      toy - headLength * Math.sin(angle - Math.PI / 6)
     );
     context.lineTo(tox, toy);
     context.lineTo(
       tox - headLength * Math.cos(angle + Math.PI / 6),
-      toy - headLength * Math.sin(angle + Math.PI / 6),
+      toy - headLength * Math.sin(angle + Math.PI / 6)
     );
 
     ctx.stroke();
@@ -64,7 +64,7 @@ export class ArrowTool extends Drawable {
   clone() {
     const arrow = new ArrowTool(this.startX, this.startY, {
       color: this.color,
-      size: this.size,
+      size: this.size
     });
     arrow.endX = this.endX;
     arrow.endY = this.endY;

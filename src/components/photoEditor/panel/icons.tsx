@@ -1,4 +1,4 @@
-export const CloseIcon = () => {
+export const CloseIcon = (props: { onClick: () => void }) => {
   return (
     <svg
       width="24"
@@ -6,6 +6,7 @@ export const CloseIcon = () => {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      onClick={props.onClick}
     >
       <path
         fill-rule="evenodd"
@@ -19,7 +20,7 @@ export const CloseIcon = () => {
 
 export const UndoIcon = (props: { isDisabled: boolean }) => {
   return (
-    <div class={"undo-redo-icon"} classList={{ disabled: props.isDisabled }}>
+    <div class={'undo-redo-icon'} classList={{disabled: props.isDisabled}}>
       <svg
         width="24"
         height="24"
@@ -40,7 +41,7 @@ export const UndoIcon = (props: { isDisabled: boolean }) => {
 
 export const RedoIcon = (props: { isDisabled: boolean }) => {
   return (
-    <div class={"undo-redo-icon"} classList={{ disabled: props.isDisabled }}>
+    <div class={'undo-redo-icon'} classList={{disabled: props.isDisabled}}>
       <svg
         width="24"
         height="24"

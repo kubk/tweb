@@ -1,8 +1,8 @@
-import { createSignal, Signal } from "solid-js";
+import {createSignal, Signal} from 'solid-js';
 
 export const createSignalWithOnchange = <T extends any>(
   value: T,
-  onChange: (value: T) => void,
+  onChange: (value: T) => void
 ) => {
   const signal = createSignal(value);
   return [
@@ -11,6 +11,6 @@ export const createSignalWithOnchange = <T extends any>(
       // @ts-ignore
       signal[1](newValue);
       onChange(newValue);
-    },
+    }
   ] as Signal<T>;
 };

@@ -1,50 +1,50 @@
-import { ColorSizePicker } from "../draw/colorSizePicker";
-import "./textTabBody.scss";
+import {ColorSizePicker} from '../draw/colorSizePicker';
+import './textTabBody.scss';
 import {
   TextAlignCenterIcon,
   TextAlignLeftIcon,
   TextAlignRightIcon,
   TextPlainIcon,
   TextWithBackgroundIcon,
-  TextWithOutlineIcon,
-} from "./icons";
-import { For, JSXElement } from "solid-js";
-import { TextAlign, TextStyle } from "../../drawable/textDrawable";
-import { useCanvasManager } from "../../photoEditor";
+  TextWithOutlineIcon
+} from './icons';
+import {For, JSXElement} from 'solid-js';
+import {TextAlign, TextStyle} from '../../drawable/textDrawable';
+import {useCanvasManager} from '../../photoEditor';
 
 export const fonts: Array<{ title: string; fontFamily: string }> = [
   {
-    title: "Roboto",
-    fontFamily: "Roboto, sans-serif",
+    title: 'Roboto',
+    fontFamily: 'Roboto, sans-serif'
   },
   {
-    title: "Typewriter",
-    fontFamily: "Courier, monospace",
+    title: 'Typewriter',
+    fontFamily: 'Courier, monospace'
   },
   {
-    title: "Avenir Next",
-    fontFamily: "Avenir Next",
+    title: 'Avenir Next',
+    fontFamily: 'Avenir Next'
   },
   {
-    title: "Courier New",
-    fontFamily: "Courier New",
+    title: 'Courier New',
+    fontFamily: 'Courier New'
   },
   {
-    title: "Noteworthy",
-    fontFamily: "Noteworthy",
+    title: 'Noteworthy',
+    fontFamily: 'Noteworthy'
   },
   {
-    title: "Georgia",
-    fontFamily: "Georgia",
+    title: 'Georgia',
+    fontFamily: 'Georgia'
   },
   {
-    title: "Papyrus",
-    fontFamily: "Papyrus",
+    title: 'Papyrus',
+    fontFamily: 'Papyrus'
   },
   {
-    title: "Snell Roundhand",
-    fontFamily: "Snell Roundhand",
-  },
+    title: 'Snell Roundhand',
+    fontFamily: 'Snell Roundhand'
+  }
 ];
 
 export const TextTabBody = () => {
@@ -54,25 +54,25 @@ export const TextTabBody = () => {
   const [textAlign] = canvasManager.textAlign;
 
   const aligns: Array<{ icon: JSXElement; align: TextAlign }> = [
-    { icon: <TextAlignLeftIcon />, align: "left" },
+    {icon: <TextAlignLeftIcon />, align: 'left'},
     {
       icon: <TextAlignCenterIcon />,
-      align: "center",
+      align: 'center'
     },
-    { icon: <TextAlignRightIcon />, align: "right" },
+    {icon: <TextAlignRightIcon />, align: 'right'}
   ];
 
   const textStyles: Array<{ icon: JSXElement; style: TextStyle }> = [
-    { icon: <TextPlainIcon />, style: "plain" },
+    {icon: <TextPlainIcon />, style: 'plain'},
     {
       icon: <TextWithOutlineIcon />,
-      style: "outline",
+      style: 'outline'
     },
-    { icon: <TextWithBackgroundIcon />, style: "background" },
+    {icon: <TextWithBackgroundIcon />, style: 'background'}
   ];
 
   return (
-    <div class={"textTabBody"}>
+    <div class={'textTabBody'}>
       <ColorSizePicker
         sizeMin={10}
         sizeMax={48}
@@ -91,7 +91,7 @@ export const TextTabBody = () => {
                       const [, setTextAlign] = canvasManager.textAlign;
                       setTextAlign(align.align);
                     }}
-                    classList={{ isSelected: textAlign() === align.align }}
+                    classList={{isSelected: textAlign() === align.align}}
                   >
                     {align.icon}
                   </div>
@@ -107,7 +107,7 @@ export const TextTabBody = () => {
                     onClick={() => {
                       canvasManager.textStyle[1](style.style);
                     }}
-                    classList={{ isSelected: textStyle() === style.style }}
+                    classList={{isSelected: textStyle() === style.style}}
                   >
                     {style.icon}
                   </div>
@@ -126,12 +126,12 @@ export const TextTabBody = () => {
             return (
               <div
                 class="fontListRow"
-                style={{ "font-family": font.fontFamily }}
+                style={{'font-family': font.fontFamily}}
                 onClick={() => {
                   setTextFont(font.fontFamily);
                 }}
                 classList={{
-                  isSelected: textFont() === font.fontFamily,
+                  isSelected: textFont() === font.fontFamily
                 }}
               >
                 {font.title}

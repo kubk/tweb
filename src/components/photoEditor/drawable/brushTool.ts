@@ -1,5 +1,5 @@
-import { Drawable } from "./drawable";
-import { DrawingOptions, Point } from "./options";
+import {Drawable} from './drawable';
+import {DrawingOptions, Point} from './options';
 
 const BRUSH_WIDTH = 10;
 const BRUSH_HEIGHT = 30;
@@ -18,13 +18,13 @@ export class BrushTool extends Drawable {
   }
 
   onMouseMove(x: number, y: number) {
-    this.points.push({ x, y });
+    this.points.push({x, y});
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    if (this.points.length < 2) return;
+    if(this.points.length < 2) return;
 
-    for (let i = 1; i < this.points.length; i++) {
+    for(let i = 1; i < this.points.length; i++) {
       const lastPoint = this.points[i - 1];
       const currentPoint = this.points[i];
 
@@ -33,7 +33,7 @@ export class BrushTool extends Drawable {
       const distance = Math.sqrt(dx * dx + dy * dy);
       const angle = Math.atan2(dx, dy);
 
-      for (let j = 0; j < distance; j += STEP) {
+      for(let j = 0; j < distance; j += STEP) {
         const x = lastPoint.x + Math.sin(angle) * j;
         const y = lastPoint.y + Math.cos(angle) * j;
 
@@ -43,7 +43,7 @@ export class BrushTool extends Drawable {
         ctx.strokeStyle = this.color;
         ctx.globalAlpha = 0.1;
         ctx.lineWidth = 0;
-        ctx.globalCompositeOperation = "source-over";
+        ctx.globalCompositeOperation = 'source-over';
 
         ctx.translate(x, y);
         ctx.rotate(ROTATION);
@@ -56,7 +56,7 @@ export class BrushTool extends Drawable {
           -brushWidth / 2,
           -brushHeight / 2,
           brushWidth,
-          brushHeight,
+          brushHeight
         );
         ctx.restore();
       }
@@ -64,7 +64,7 @@ export class BrushTool extends Drawable {
   }
 
   clone() {
-    const newBrush = new BrushTool({ color: this.color, size: this.size });
+    const newBrush = new BrushTool({color: this.color, size: this.size});
     newBrush.points = [...this.points];
     return newBrush;
   }

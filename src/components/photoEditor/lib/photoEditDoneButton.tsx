@@ -1,4 +1,4 @@
-import "./photoEditDoneButton.scss";
+import './photoEditDoneButton.scss';
 
 const Icon = () => {
   return (
@@ -22,7 +22,7 @@ const Icon = () => {
 
 export const PhotoEditDoneButton = (props: { onClick: () => void }) => {
   return (
-    <div class={"photoEditDoneButton"} onClick={props.onClick}>
+    <div class={'photoEditDoneButton'} onClick={props.onClick}>
       <Icon />
     </div>
   );

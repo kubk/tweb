@@ -1,4 +1,4 @@
-import "./positiveSlider.scss";
+import './positiveSlider.scss';
 
 export const PositiveSlider = (props: {
   value: number;
@@ -14,22 +14,22 @@ export const PositiveSlider = (props: {
     ((props.value - props.min) / (props.max - props.min)) * 100;
 
   return (
-    <div class={"positiveSlider"}>
+    <div class={'positiveSlider'}>
       <div
         class="slider-container"
         style={{
-          "--color": props.color,
+          '--color': props.color
         }}
       >
         <div class="slider-header">
-          <span class="slider-name" classList={{ isEffect: props.isEffect }}>
+          <span class="slider-name" classList={{isEffect: props.isEffect}}>
             {props.name}
           </span>
           <span
-            class={"slider-value"}
+            class={'slider-value'}
             classList={{
               active: props.isActiveValue && props.value !== 0,
-              isEffect: props.isEffect,
+              isEffect: props.isEffect
             }}
           >
             {props.value}
@@ -39,13 +39,13 @@ export const PositiveSlider = (props: {
           <div
             class="slider-fill"
             style={{
-              width: `${percentage()}%`,
+              width: `${percentage()}%`
             }}
           />
           <div
             class="slider-thumb"
             style={{
-              left: `calc(${percentage()}% - 10px)`,
+              left: `calc(${percentage()}% - 10px)`
             }}
           />
           <input

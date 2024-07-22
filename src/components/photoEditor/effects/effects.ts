@@ -21,17 +21,17 @@ export const effects: Record<
   keyof Effects,
   { title: string; sliderType: SliderType }
 > = {
-  enhance: { title: "Enhance", sliderType: SliderType.Positive },
-  brightness: { title: "Brightness", sliderType: SliderType.Bidirectional },
-  contrast: { title: "Contrast", sliderType: SliderType.Bidirectional },
-  saturation: { title: "Saturation", sliderType: SliderType.Bidirectional },
-  warmth: { title: "Warmth", sliderType: SliderType.Bidirectional },
-  fade: { title: "Fade", sliderType: SliderType.Positive },
-  highlights: { title: "Highlights", sliderType: SliderType.Bidirectional },
-  shadows: { title: "Shadows", sliderType: SliderType.Bidirectional },
-  vignette: { title: "Vignette", sliderType: SliderType.Positive },
-  grain: { title: "Grain", sliderType: SliderType.Positive },
-  sharpen: { title: "Sharpen", sliderType: SliderType.Positive },
+  enhance: {title: 'Enhance', sliderType: SliderType.Positive},
+  brightness: {title: 'Brightness', sliderType: SliderType.Bidirectional},
+  contrast: {title: 'Contrast', sliderType: SliderType.Bidirectional},
+  saturation: {title: 'Saturation', sliderType: SliderType.Bidirectional},
+  warmth: {title: 'Warmth', sliderType: SliderType.Bidirectional},
+  fade: {title: 'Fade', sliderType: SliderType.Positive},
+  highlights: {title: 'Highlights', sliderType: SliderType.Bidirectional},
+  shadows: {title: 'Shadows', sliderType: SliderType.Bidirectional},
+  vignette: {title: 'Vignette', sliderType: SliderType.Positive},
+  grain: {title: 'Grain', sliderType: SliderType.Positive},
+  sharpen: {title: 'Sharpen', sliderType: SliderType.Positive}
 };
 
 export const effectList = Object.entries(effects) as [
@@ -44,7 +44,7 @@ export const copyEffectsFromTo = (fromEffects: Effects, toEffects: Effects) => {
 };
 
 export const duplicateEffects = (effects: Effects): Effects => {
-  return { ...effects };
+  return {...effects};
 };
 
 export const createEffects = (): Effects => {
@@ -59,6 +59,6 @@ export const createEffects = (): Effects => {
     shadows: 0,
     vignette: 0,
     grain: 0,
-    sharpen: 0,
+    sharpen: 0
   };
 };

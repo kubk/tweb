@@ -1,6 +1,6 @@
-import { Drawable } from "./drawable";
-import { DrawingOptions } from "./options";
-import { catmullRomSpline } from "./catmullRomSpline";
+import {Drawable} from './drawable';
+import {DrawingOptions} from './options';
+import {catmullRomSpline} from './catmullRomSpline';
 
 const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
@@ -8,20 +8,20 @@ const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
 
 const drawSmoothLine = (
   ctx: CanvasRenderingContext2D,
-  points: PointWithWidth[],
+  points: PointWithWidth[]
 ) => {
-  if (points.length < 4) return;
+  if(points.length < 4) return;
 
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
 
-  for (let i = 0; i < points.length - 3; i++) {
+  for(let i = 0; i < points.length - 3; i++) {
     const p0 = i > 0 ? points[i - 1] : points[i];
     const p1 = points[i];
     const p2 = points[i + 1];
     const p3 = points[i + 2];
 
-    for (let t = 0; t <= 1; t += 0.1) {
+    for(let t = 0; t <= 1; t += 0.1) {
       const pt = catmullRomSpline(p0, p1, p2, p3, t);
       ctx.lineTo(pt.x, pt.y);
     }
@@ -47,7 +47,7 @@ export class SmoothedPenTool extends Drawable {
   }
 
   getAverageVelocity() {
-    if (this.velocities.length === 0) return 0;
+    if(this.velocities.length === 0) return 0;
     return (
       this.velocities.reduce((sum, v) => sum + v, 0) / this.velocities.length
     );
@@ -60,7 +60,7 @@ export class SmoothedPenTool extends Drawable {
 
     const targetLineWidth = Math.max(
       minLineWidth,
-      maxLineWidth - velocity * velocityFactor,
+      maxLineWidth - velocity * velocityFactor
     );
 
     // Smooth transition of line width
@@ -70,29 +70,29 @@ export class SmoothedPenTool extends Drawable {
   onMouseMove(x: number, y: number) {
     const currentTime = Date.now();
     const timeDelta = currentTime - this.lastTime;
-    const lastPoint = this.points[this.points.length - 1] || { x: x, y: y };
+    const lastPoint = this.points[this.points.length - 1] || {x: x, y: y};
     const distance = getDistance(lastPoint.x, lastPoint.y, x, y);
     const velocity = distance / timeDelta;
 
     this.velocities.push(velocity);
-    if (this.velocities.length > 5) this.velocities.shift();
+    if(this.velocities.length > 5) this.velocities.shift();
 
     const avgVelocity = this.getAverageVelocity();
     const lineWidth = this.calcNewLineWidth(avgVelocity);
     this.currentLineWidth = lineWidth;
 
-    this.points.push({ x: x, y: y, lineWidth: lineWidth });
+    this.points.push({x: x, y: y, lineWidth: lineWidth});
     this.lastTime = currentTime;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = this.color;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     ctx.beginPath();
     ctx.moveTo(this.points[0].x, this.points[0].y);
-    for (let i = 1; i < this.points.length; i++) {
+    for(let i = 1; i < this.points.length; i++) {
       ctx.lineWidth = this.points[i].lineWidth;
       ctx.lineTo(this.points[i].x, this.points[i].y);
     }
@@ -104,7 +104,7 @@ export class SmoothedPenTool extends Drawable {
   clone() {
     const newPen = new SmoothedPenTool({
       color: this.color,
-      size: this.size,
+      size: this.size
     });
     newPen.points = this.points.slice();
     return newPen;

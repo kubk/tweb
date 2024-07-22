@@ -1,17 +1,19 @@
-import { CloseIcon, RedoIcon, UndoIcon } from "./icons";
-import "./panelHeader.scss";
-import { useCanvasManager } from "../photoEditor";
+import {CloseIcon, RedoIcon, UndoIcon} from './icons';
+import './panelHeader.scss';
+import {useCanvasManager} from '../photoEditor';
 
-export const PanelHeader = () => {
+export const PanelHeader = (props: { onClose: () => void }) => {
   const canvasManager = useCanvasManager();
   const [canUndo] = canvasManager.canUndo;
   const [canRedo] = canvasManager.canRedo;
 
   return (
-    <div class={"panel-header"}>
-      <CloseIcon />
-      <span class={"edit"}>Edit</span>
-      <div class={"undo-redo"}>
+    <div class={'panelHeader'}>
+      <div class={'closeIcon'}>
+        <CloseIcon onClick={props.onClose} />
+      </div>
+      <span class={'edit'}>Edit</span>
+      <div class={'undoRedo'}>
         <div
           onClick={() => {
             canvasManager.undo();

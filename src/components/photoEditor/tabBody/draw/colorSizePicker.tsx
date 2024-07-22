@@ -1,12 +1,12 @@
-import { createSignal, For, JSXElement, Signal } from "solid-js";
-import { ColorSwitcherIcon } from "./colorSwitcherIcon";
-import { ColorPicker } from "../../colorPicker/colorPicker";
-import { rgbToHex } from "../../lib/colorUtils";
-import { PredefinedColor } from "./predefinedColor";
-import { PositiveSlider } from "../positiveSlider";
-import "./colorSizePicker.scss";
+import {createSignal, For, JSXElement, Signal} from 'solid-js';
+import {ColorSwitcherIcon} from './colorSwitcherIcon';
+import {ColorPicker} from '../../colorPicker/colorPicker';
+import {rgbToHex} from '../../lib/colorUtils';
+import {PredefinedColor} from './predefinedColor';
+import {PositiveSlider} from '../positiveSlider';
+import './colorSizePicker.scss';
 
-type ColorPickerMode = "predefined" | "custom";
+type ColorPickerMode = 'predefined' | 'custom';
 
 export const ColorSizePicker = (props: {
   size: Signal<number>;
@@ -19,27 +19,27 @@ export const ColorSizePicker = (props: {
 }) => {
   const [size, setSize] = props.size;
   const [colorPickerMode, setColorPickerMode] =
-    createSignal<ColorPickerMode>("predefined");
+    createSignal<ColorPickerMode>('predefined');
   const sizeMin = props.sizeMin ?? 1;
   const sizeMax = props.sizeMax ?? 30;
 
   const predefinedColors = [
-    { r: 255, g: 255, b: 255 },
-    { r: 254, g: 68, b: 56 },
-    { r: 255, g: 137, b: 1 }, // orange
-    { r: 255, g: 214, b: 10 }, // yellow
-    { r: 51, g: 199, b: 89 }, // green
-    { r: 98, g: 229, b: 224 }, // neon
-    { r: 10, g: 132, b: 255 },
-    { r: 189, g: 92, b: 243 },
+    {r: 255, g: 255, b: 255},
+    {r: 254, g: 68, b: 56},
+    {r: 255, g: 137, b: 1}, // orange
+    {r: 255, g: 214, b: 10}, // yellow
+    {r: 51, g: 199, b: 89}, // green
+    {r: 98, g: 229, b: 224}, // neon
+    {r: 10, g: 132, b: 255},
+    {r: 189, g: 92, b: 243}
   ];
 
   const colorSwitcher = (
     <ColorSwitcherIcon
-      isSelected={colorPickerMode() === "custom"}
+      isSelected={colorPickerMode() === 'custom'}
       onClick={() => {
         setColorPickerMode(
-          colorPickerMode() === "custom" ? "predefined" : "custom",
+          colorPickerMode() === 'custom' ? 'predefined' : 'custom'
         );
       }}
     />
@@ -47,7 +47,7 @@ export const ColorSizePicker = (props: {
 
   return (
     <>
-      {colorPickerMode() === "custom" && (
+      {colorPickerMode() === 'custom' && (
         <div>
           <ColorPicker
             hueSlot={colorSwitcher}
@@ -55,9 +55,9 @@ export const ColorSizePicker = (props: {
           />
         </div>
       )}
-      {colorPickerMode() === "predefined" && (
-        <div class={"predefinedColorList"}>
-          <div class={"colors"}>
+      {colorPickerMode() === 'predefined' && (
+        <div class={'predefinedColorList'}>
+          <div class={'colors'}>
             <For each={predefinedColors}>
               {(predefinedColor) => {
                 const colorHex = rgbToHex(predefinedColor);

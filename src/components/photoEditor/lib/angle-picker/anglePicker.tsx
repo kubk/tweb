@@ -1,7 +1,7 @@
-import { batch, createSignal, For, onCleanup, onMount, Signal } from "solid-js";
-import "./anglePicker.scss";
-import { clamp } from "../clamp";
-import { useCanvasManager } from "../../photoEditor";
+import {batch, createSignal, For, onCleanup, onMount, Signal} from 'solid-js';
+import './anglePicker.scss';
+import {clamp} from '../clamp';
+import {useCanvasManager} from '../../photoEditor';
 
 export type AngleDot = {
   angle: number;
@@ -45,17 +45,17 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
       const touchX = clamp(
         event.pageX - controlRect.left,
         0,
-        controlRect.width,
+        controlRect.width
       );
       const initTouch = initialTouchX();
-      if (initTouch === null) {
+      if(initTouch === null) {
         return;
       }
       const deltaX = touchX - initTouch;
       const angleDelta = Math.floor(180 * (deltaX / controlRect.width));
 
       const initAngle = initialAngle();
-      if (initAngle === null) {
+      if(initAngle === null) {
         return;
       }
       const newAngle = initAngle - angleDelta;
@@ -66,8 +66,8 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
     };
 
     const onMouseUp = () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      controlRef!.addEventListener("mousedown", onMouseDown, { once: true });
+      document.removeEventListener('mousemove', onMouseMove);
+      controlRef!.addEventListener('mousedown', onMouseDown, {once: true});
     };
 
     const onMouseDown = (event: MouseEvent) => {
@@ -75,7 +75,7 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
       const touchX = clamp(
         event.pageX - controlRect.left,
         0,
-        controlRect.width,
+        controlRect.width
       );
       batch(() => {
         setInitialTouchX(touchX);
@@ -84,11 +84,11 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
 
       onMouseMove(event);
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp, { once: true });
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp, {once: true});
     };
 
-    controlRef!.addEventListener("mousedown", onMouseDown, { once: true });
+    controlRef!.addEventListener('mousedown', onMouseDown, {once: true});
 
     updateAngleDots();
 
@@ -102,9 +102,9 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
     };
 
     onCleanup(() => {
-      controlRef!.removeEventListener("mousedown", onMouseDown);
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
+      controlRef!.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
     });
   });
 
@@ -113,9 +113,9 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
     angle /= 2;
     let index = angle - width;
 
-    while (index <= angle + width) {
+    while(index <= angle + width) {
       let currentAngle = angle + index;
-      if (Math.abs(currentAngle) >= 360) {
+      if(Math.abs(currentAngle) >= 360) {
         currentAngle = -(currentAngle % 360);
       }
       const distance = Math.abs(index - angle);
@@ -125,7 +125,7 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
         opacity: opacity,
         isCurrentSelected: distance / width === 0,
         isCurrent: index === angle,
-        isMajor: !(currentAngle % majorStep),
+        isMajor: !(currentAngle % majorStep)
       };
       result.push(angleDot);
       index++;
@@ -152,9 +152,9 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
                 <div
                   class="label"
                   classList={{
-                    currentSelected: step.isCurrentSelected,
+                    currentSelected: step.isCurrentSelected
                   }}
-                  style={{ opacity: step.opacity }}
+                  style={{opacity: step.opacity}}
                 >
                   {step.isMajor && (
                     <>
@@ -166,7 +166,7 @@ export const AnglePicker = (props: { rotationAngle: Signal<number> }) => {
                 <div
                   classList={{
                     isMajor: step.isMajor,
-                    isCurrent: step.isCurrent,
+                    isCurrent: step.isCurrent
                   }}
                   class="circle"
                 />

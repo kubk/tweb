@@ -1,4 +1,4 @@
-import { Drawable } from "./drawable";
+import {Drawable} from './drawable';
 
 export class Rectangle extends Drawable {
   constructor(
@@ -6,7 +6,7 @@ export class Rectangle extends Drawable {
     public y: number,
     public width: number,
     public height: number,
-    public color: string,
+    public color: string
   ) {
     super();
     this.width = width;

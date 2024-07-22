@@ -1,4 +1,4 @@
-import penBlur from "./img/pen-blur.png";
+import penBlur from './img/pen-blur.png';
 
 export const PenIcon = (props: { color: string }) => {
   return (
@@ -772,11 +772,11 @@ export const PenBlurIcon = () => {
   return (
     <img
       style={{
-        width: "120px",
-        height: "20px",
+        width: '120px',
+        height: '20px'
       }}
       src={penBlur}
-      alt={"pen blur icon"}
+      alt={'pen blur icon'}
     />
   );
 };
