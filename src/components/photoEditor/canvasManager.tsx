@@ -35,7 +35,7 @@ type Mode =
       name: 'drawing';
       currentLine?: Drawable;
     }
-  | { name: 'dragging'; draggingObject: TextDrawable }
+  | { name: 'dragging'; draggingObject: TextDrawable|ImageDrawable }
   | { name: 'cropping'; cropArea?: CropAreaDrawable };
 
 export type State = {
@@ -46,7 +46,7 @@ export type State = {
   height: number;
 };
 
-const tabs = ['enhance', 'crop', 'text', 'draw'] as const;
+const tabs = ['enhance', 'crop', 'text', 'draw', 'sticker'] as const;
 type EditorTab = (typeof tabs)[number];
 
 const undoStackLimit = 10;
@@ -317,49 +317,66 @@ export class CanvasManager {
     }
 
     if(mode.name === 'idle') {
-      if(tab() !== 'text') {
+      const currentTab = tab();
+      if(currentTab !== 'text' && currentTab !== 'sticker') {
         return;
       }
 
       const objectToDrag = this.drawables
-      .filter((drawable) => drawable instanceof TextDrawable)
+      .filter((drawable) => drawable instanceof TextDrawable || (drawable instanceof ImageDrawable  && drawable.isDraggable))
       .find((drawable) => drawable.containsPoint(mouseX, mouseY));
 
-      const hasSelectedText = this.drawables.find(
-        (drawable) => drawable instanceof TextDrawable && drawable.isSelected
-      );
+      if(currentTab === 'sticker') {
+        if(objectToDrag && objectToDrag instanceof ImageDrawable) {
+          assert(objectToDrag.isDraggable);
+          modifyMutable(
+            this.mode,
+            reconcile<Mode, Mode>({
+              name: 'dragging',
+              draggingObject: objectToDrag
+            })
+          );
 
-      if(hasSelectedText) {
-        this.drawables.forEach((drawable) => {
-          if(drawable instanceof TextDrawable) {
-            drawable.isSelected = false;
-          }
-        });
+          objectToDrag.onMouseDown(mouseX, mouseY);
+          this.draw();
+        }
+      } else if(currentTab === 'text') {
+        const hasSelectedText = this.drawables.find(
+          (drawable) => drawable instanceof TextDrawable && drawable.isSelected
+        );
+
+        if(hasSelectedText) {
+          this.drawables.forEach((drawable) => {
+            if(drawable instanceof TextDrawable) {
+              drawable.isSelected = false;
+            }
+          });
+          this.draw();
+          this.setCursor('crosshair');
+        }
+
+        if(!hasSelectedText && !objectToDrag) {
+          this.addText(mouseX, mouseY);
+        }
+
+        if(!objectToDrag) {
+          return;
+        }
+
+        assert(objectToDrag instanceof TextDrawable);
+        objectToDrag.isSelected = true;
+        this.textDrawableResizing = objectToDrag;
+        modifyMutable(
+          this.mode,
+          reconcile<Mode, Mode>({
+            name: 'dragging',
+            draggingObject: objectToDrag
+          })
+        );
+        objectToDrag.onMouseDown(mouseX, mouseY);
         this.draw();
-        this.setCursor('crosshair');
+        this.saveState();
       }
-
-      if(!hasSelectedText && !objectToDrag) {
-        this.addText(mouseX, mouseY);
-      }
-
-      if(!objectToDrag) {
-        return;
-      }
-
-      assert(objectToDrag instanceof TextDrawable);
-      objectToDrag.isSelected = true;
-      this.textDrawableResizing = objectToDrag;
-      modifyMutable(
-        this.mode,
-        reconcile<Mode, Mode>({
-          name: 'dragging',
-          draggingObject: objectToDrag
-        })
-      );
-      objectToDrag.onMouseDown(mouseX, mouseY);
-      this.draw();
-      this.saveState();
     }
 
     if(mode.name === 'cropping') {
@@ -698,6 +715,19 @@ export class CanvasManager {
         this.touchedEffects
       )
     );
+    this.draw();
+  }
+
+  addSticker(data: ImageData, size: number) {
+    this.saveState();
+    const imageData = ImageDrawable.fromImageData(data, size, size, createEffects(), new Set());
+    // @ts-ignore
+    imageData.x = 0
+    // @ts-ignore
+    imageData.y = 0
+    // @ts-ignore
+    imageData.isDraggable = true;
+    this.drawables.push(imageData);
     this.draw();
   }
 

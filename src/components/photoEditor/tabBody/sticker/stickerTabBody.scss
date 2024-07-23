@@ -1,0 +1,12 @@
+.tgPhotoEditor .stickersTabBody {
+  height: 100%;
+
+  .emoji-dropdown {
+    padding: 0 8px;
+  }
+
+  .hiddenStickerContainer {
+    position: fixed;
+    visibility: hidden;
+  }
+}

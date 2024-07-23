@@ -1,5 +1,5 @@
 import {TabIcon} from '../tabIcons/tabIcon';
-import {CropIcon, DrawIcon, EnhanceIcon, TextIcon} from '../tabIcons/icons';
+import {CropIcon, DrawIcon, EnhanceIcon, TextIcon,StickersTabIcon} from '../tabIcons/icons';
 import './panelTabs.scss';
 import {useCanvasManager} from '../photoEditor';
 
@@ -43,6 +43,12 @@ export const PanelTabs = () => {
         isActive={tab() === 'draw'}
       >
         <DrawIcon />
+      </TabIcon>
+
+      <TabIcon isActive={tab() === 'sticker'} onClick={() => {
+        canvasManager.switchTab('sticker');
+      }}>
+        <StickersTabIcon/>
       </TabIcon>
     </div>
   );

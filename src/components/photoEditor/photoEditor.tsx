@@ -18,6 +18,7 @@ import {PhotoEditDoneButton} from './lib/photoEditDoneButton';
 import {CropRotatePanel} from './tabBody/crop/cropRotatePanel';
 import {TextTabBody} from './tabBody/text/textTabBody';
 import {assert} from './lib/assert';
+import {StickerTabBody} from './tabBody/sticker/stickerTabBody';
 
 type Props = {
   onDoneClick: (canvasManager: CanvasManager) => void;
@@ -81,6 +82,9 @@ export const PhotoEditor = (props: Props) => {
           </Match>
           <Match when={tab() === 'draw'}>
             <DrawTabBody />
+          </Match>
+          <Match when={tab() === 'sticker'}>
+            <StickerTabBody/>
           </Match>
         </Switch>
 
