@@ -2,7 +2,7 @@ import {Drawable} from './drawable';
 import {applyEffects} from '../effects/apply-effects';
 import {Effects} from '../effects/effects';
 import {assert} from '../lib/assert';
-import {calculateScaleForRotation} from '../crop/calculateScaleForRotation';
+import {calculateScaleForRotation} from '../helpers/calculateScaleForRotation';
 
 export class ImageDrawable extends Drawable {
   private originalHtmlImage?: HTMLImageElement;
@@ -220,9 +220,9 @@ export class ImageDrawable extends Drawable {
   }
 
   getImageData() {
-    return (this.processedCanvas
-    .getContext('2d', {willReadFrequently: true}) as any)
-    ?.getImageData(0, 0, this.width, this.height);
+    return (
+      this.processedCanvas.getContext('2d', {willReadFrequently: true}) as any
+    )?.getImageData(0, 0, this.width, this.height);
   }
 
   clone() {

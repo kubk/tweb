@@ -1,5 +1,7 @@
 import {Drawable} from './drawable';
 import {clamp} from '../lib/clamp';
+import {getNextId} from '../helpers/getNextId';
+import {ResizeHandle} from '../helpers/resizeHandle';
 
 export type TextAlign = 'left' | 'center' | 'right';
 export type TextStyle = 'plain' | 'outline' | 'background';
@@ -10,15 +12,8 @@ const caret = '|';
 const borderRadius = 10;
 const handleRadius = 4;
 
-// Used to generate unique IDs for each text drawable, so they can be removed
-const getNextId = (() => {
-  let id = 0;
-  return () => id++;
-})();
-
-type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-
 export class TextDrawable extends Drawable {
+  public readonly id: number;
   isDragging = false;
   isSelected = false;
   private lastMouseX: number | null = null;
@@ -28,10 +23,11 @@ export class TextDrawable extends Drawable {
   private lines: Line[] = [];
   private currentLine = 0;
   private lineHeight: number;
-  public readonly id: number;
   private resizingHandle: ResizeHandle | null = null;
   private innerPadding!: number;
   private outerPadding = 10;
+  private angle = 0;
+  private isRotating = false;
 
   constructor(
     private x: number,
@@ -58,7 +54,6 @@ export class TextDrawable extends Drawable {
   private updatePaddings() {
     const ratio = this.fontSize / 24;
     this.innerPadding = Math.round(8 * ratio);
-    // this.outerPadding = Math.round(10 * ratio);
   }
 
   private calculateDimensions() {
@@ -75,7 +70,6 @@ export class TextDrawable extends Drawable {
       this.maxWidth = Math.max(this.maxWidth, line.width);
     });
 
-    // Calculate caret width separately
     tempCtx.font = this.caretFont;
     const caretWidth = tempCtx.measureText(caret).width;
     this.maxWidth = Math.max(this.maxWidth, caretWidth + this.innerPadding * 2);
@@ -84,6 +78,11 @@ export class TextDrawable extends Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.translate(this.x + this.maxWidth / 2, this.y + this.height / 2);
+    ctx.rotate((this.angle * Math.PI) / 180);
+    ctx.translate(-(this.x + this.maxWidth / 2), -(this.y + this.height / 2));
+
     ctx.font = this.font;
     const textHeight = this.fontSize;
 
@@ -137,7 +136,6 @@ export class TextDrawable extends Drawable {
 
       ctx.fillText(line.text, xOffsetAlignment, textYPosition);
 
-      // Draw caret separately
       if(index === this.currentLine && this.isSelected) {
         const textMetrics = ctx.measureText(line.text);
         const caretX = xOffsetAlignment + textMetrics.width;
@@ -157,40 +155,54 @@ export class TextDrawable extends Drawable {
     });
 
     if(this.isSelected) {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath();
-      ctx.rect(
-        this.x - this.outerPadding,
-        this.y - this.outerPadding,
-        this.maxWidth + this.outerPadding * 2,
-        this.height + this.outerPadding * 2
-      );
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      this.drawHandle(
-        ctx,
-        this.x - this.outerPadding,
-        this.y - this.outerPadding
-      );
-      this.drawHandle(
-        ctx,
-        this.x + this.maxWidth + this.outerPadding,
-        this.y - this.outerPadding
-      );
-      this.drawHandle(
-        ctx,
-        this.x - this.outerPadding,
-        this.y + this.height + this.outerPadding
-      );
-      this.drawHandle(
-        ctx,
-        this.x + this.maxWidth + this.outerPadding,
-        this.y + this.height + this.outerPadding
-      );
+      this.drawBoundingBox(ctx);
+      this.drawHandles(ctx);
     }
+
+    ctx.restore();
+  }
+
+  private drawBoundingBox(ctx: CanvasRenderingContext2D) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(
+      this.x - this.outerPadding,
+      this.y - this.outerPadding,
+      this.maxWidth + this.outerPadding * 2,
+      this.height + this.outerPadding * 2
+    );
+    ctx.setLineDash([]);
+  }
+
+  private drawHandles(ctx: CanvasRenderingContext2D) {
+    const handles: [ResizeHandle, number, number][] = [
+      ['top-left', this.x - this.outerPadding, this.y - this.outerPadding],
+      [
+        'top-right',
+        this.x + this.maxWidth + this.outerPadding,
+        this.y - this.outerPadding
+      ],
+      [
+        'bottom-left',
+        this.x - this.outerPadding,
+        this.y + this.height + this.outerPadding
+      ],
+      [
+        'bottom-right',
+        this.x + this.maxWidth + this.outerPadding,
+        this.y + this.height + this.outerPadding
+      ],
+      [
+        'top-center',
+        this.x + this.maxWidth / 2,
+        this.y - this.outerPadding - 15
+      ]
+    ];
+
+    handles.forEach(([handle, hx, hy]) => {
+      this.drawHandle(ctx, hx, hy);
+    });
   }
 
   private drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -204,7 +216,11 @@ export class TextDrawable extends Drawable {
     if(this.isSelected) {
       const handle = this.getHandleAtPosition(mouseX, mouseY);
       if(handle) {
-        this.resizingHandle = handle;
+        if(handle === 'top-center') {
+          this.isRotating = true;
+        } else {
+          this.resizingHandle = handle;
+        }
         this.lastMouseX = mouseX;
         this.lastMouseY = mouseY;
         return;
@@ -221,7 +237,9 @@ export class TextDrawable extends Drawable {
   onMouseMove(x: number, y: number, ctx: CanvasRenderingContext2D) {
     if(this.lastMouseY === null || this.lastMouseX === null) return;
 
-    if(this.resizingHandle) {
+    if(this.isRotating) {
+      this.rotateText(x, y);
+    } else if(this.resizingHandle) {
       this.resizeText(x, y);
     } else if(this.isDragging) {
       const dx = x - this.lastMouseX;
@@ -249,9 +267,12 @@ export class TextDrawable extends Drawable {
         case 'bottom-left':
           this.updateCursor('nesw-resize');
           break;
+        case 'top-center':
+          this.updateCursor('grab');
+          break;
       }
     } else if(this.containsPoint(x, y)) {
-      this.updateCursor('move');
+      this.updateCursor('grab');
     } else {
       this.updateCursor('default');
     }
@@ -260,14 +281,30 @@ export class TextDrawable extends Drawable {
   onMouseUp() {
     this.isDragging = false;
     this.resizingHandle = null;
+    this.isRotating = false;
   }
 
   containsPoint(x: number, y: number) {
+    const centerX = this.x + this.maxWidth / 2;
+    const centerY = this.y + this.height / 2;
+    const angleRad = (this.angle * Math.PI) / 180;
+
+    const rotatedX =
+      centerX +
+      (x - centerX) * Math.cos(-angleRad) -
+      (y - centerY) * Math.sin(-angleRad);
+    const rotatedY =
+      centerY +
+      (x - centerX) * Math.sin(-angleRad) +
+      (y - centerY) * Math.cos(-angleRad);
+
     const handleOffset = handleRadius + 2;
     const isWithinX =
-      x >= this.x - handleOffset && x <= this.x + this.maxWidth + handleOffset;
+      rotatedX >= this.x - handleOffset &&
+      rotatedX <= this.x + this.maxWidth + handleOffset;
     const isWithinY =
-      y >= this.y - handleOffset && y <= this.y + this.height + handleOffset;
+      rotatedY >= this.y - handleOffset &&
+      rotatedY <= this.y + this.height + handleOffset;
 
     return (isWithinX && isWithinY) || !!this.getHandleAtPosition(x, y);
   }
@@ -275,11 +312,9 @@ export class TextDrawable extends Drawable {
   onKeyPress(event: KeyboardEvent) {
     const key = event.key;
 
-    // If escape - diselect
     if(key === 'Escape') {
       this.isSelected = false;
     } else if(key === 'Enter') {
-      // Prevent multiple empty lines
       if(this.lines[this.currentLine].text === '') return;
       this.lines.splice(this.currentLine + 1, 0, {text: '', width: 0});
       this.currentLine++;
@@ -299,8 +334,6 @@ export class TextDrawable extends Drawable {
         this.currentLine--;
         this.lines[this.currentLine].text = previousLine;
       } else {
-        // If we are at the first line and it is empty, remove the text
-        // The same as iOS app behavior
         this.onRemove(this.id);
       }
     } else if(key.length === 1) {
@@ -343,6 +376,10 @@ export class TextDrawable extends Drawable {
   }
 
   private getHandleAtPosition(x: number, y: number): ResizeHandle | null {
+    const centerX = this.x + this.maxWidth / 2;
+    const centerY = this.y + this.height / 2;
+    const angleRad = (this.angle * Math.PI) / 180;
+
     const handles: [ResizeHandle, number, number][] = [
       ['top-left', this.x - this.outerPadding, this.y - this.outerPadding],
       [
@@ -359,17 +396,29 @@ export class TextDrawable extends Drawable {
         'bottom-right',
         this.x + this.maxWidth + this.outerPadding,
         this.y + this.height + this.outerPadding
-      ]
+      ],
+      ['top-center', centerX, this.y - this.outerPadding - 15]
     ];
 
     for(const [handle, hx, hy] of handles) {
-      if(Math.sqrt((x - hx) ** 2 + (y - hy) ** 2) <= handleRadius) {
+      const rotatedX =
+        centerX +
+        (hx - centerX) * Math.cos(angleRad) -
+        (hy - centerY) * Math.sin(angleRad);
+      const rotatedY =
+        centerY +
+        (hx - centerX) * Math.sin(angleRad) +
+        (hy - centerY) * Math.cos(angleRad);
+      if(
+        Math.sqrt((x - rotatedX) ** 2 + (y - rotatedY) ** 2) <= handleRadius
+      ) {
         return handle;
       }
     }
 
     return null;
   }
+
   private resizeText(mouseX: number, mouseY: number) {
     if(this.lastMouseX === null || this.lastMouseY === null) return;
 
@@ -405,7 +454,6 @@ export class TextDrawable extends Drawable {
         break;
     }
 
-    // Aspect ratio
     if(newWidth / newHeight > aspectRatio) {
       newHeight = newWidth / aspectRatio;
     } else {
@@ -439,6 +487,13 @@ export class TextDrawable extends Drawable {
     this.calculateDimensions();
   }
 
+  private rotateText(mouseX: number, mouseY: number) {
+    const centerX = this.x + this.maxWidth / 2;
+    const centerY = this.y + this.height / 2;
+    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+    this.angle = ((angle * 180) / Math.PI + 90) % 360;
+  }
+
   clone() {
     const clone = new TextDrawable(
       this.x,
@@ -454,6 +509,7 @@ export class TextDrawable extends Drawable {
     );
     clone.lines = JSON.parse(JSON.stringify(this.lines));
     clone.currentLine = this.currentLine;
+    clone.angle = this.angle;
     clone.calculateDimensions();
     return clone;
   }

@@ -123,21 +123,31 @@ export class EmoticonsDropdown extends DropdownHover {
 
   public isStandalone: boolean;
 
+  public onStickerClick?: (docId: string) => void
+
   constructor(options: {
     customParentElement?: HTMLElement,
     // customAnchorElement?: HTMLElement,
     getOpenPosition?: () => DOMRectEditable,
     tabsToRender?: EmoticonsTab[],
     customOnSelect?: (emoji: {element: HTMLElement} & ReturnType<typeof getEmojiFromElement>) => void,
+    onStickerClick?: (docId: string) => void,
+    fitToParent?: boolean;
+    preventCloseOnOut?: boolean;
+    overrideTabId?: number,
   } = {}) {
     super({
       element: renderEmojiDropdownElement(),
-      ignoreOutClickClassName: 'input-message-input'
+      ignoreOutClickClassName: 'input-message-input',
+      preventCloseOnOut: options.preventCloseOnOut
     });
     safeAssign(this, options);
 
     this.listenerSetter = new ListenerSetter();
     this.isStandalone = !!options?.tabsToRender;
+    if(options.overrideTabId !== undefined) {
+      this.tabId = options.overrideTabId;
+    }
     this.element.classList.toggle('is-standalone', this.isStandalone)
 
     this.rights = {
@@ -164,7 +174,12 @@ export class EmoticonsDropdown extends DropdownHover {
         this.element.style.bottom = anchorRect.top + offset + 'px' as string;
       } */
 
+
       if(options.customParentElement) {
+        if (options.fitToParent) {
+          this.element.style.setProperty('--height', options.customParentElement.offsetHeight + 'px');
+          this.element.style.maxHeight = options.customParentElement.offsetHeight + 'px';
+        }
         options.customParentElement.append(this.element);
       } else if(this.element.parentElement !== this.chatInput.chatInput) {
         this.chatInput.chatInput.append(this.element);
@@ -352,7 +367,8 @@ export class EmoticonsDropdown extends DropdownHover {
       this.chatInput.messageInputField.simulateInputEvent();
     }, {listenerSetter: this.listenerSetter});
 
-    const HIDE_EMOJI_TAB = IS_APPLE_MOBILE && false;
+    const hasEmojiTab = !!this.getTab(EmojiTab);
+    const HIDE_EMOJI_TAB = IS_APPLE_MOBILE || !hasEmojiTab;
 
     const INIT_TAB_ID = HIDE_EMOJI_TAB ? this.getTab(StickersTab).tabId : this.getTab(EmojiTab).tabId;
 
@@ -652,7 +668,11 @@ export class EmoticonsDropdown extends DropdownHover {
     const docId = target.dataset.docId;
     if(!docId) return false;
 
-    return this.sendDocId({document: docId, clearDraft, silent, target, ignoreNoPremium});
+    if(this.onStickerClick) {
+      this.onStickerClick(docId);
+    } else {
+      return this.sendDocId({document: docId, clearDraft, silent, target, ignoreNoPremium});
+    }
   };
 
   public async sendDocId(options: Parameters<ChatInput['sendMessageWithDocument']>[0]) {

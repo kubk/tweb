@@ -1,7 +1,7 @@
 import {Point} from './options';
 import {Drawable} from './drawable';
-import fastblur from '../../../vendor/fastBlur';
 import {IS_SAFARI} from '../../../environment/userAgent';
+import fastblur from '../../../vendor/fastBlur';
 
 type Mode = 'eraser' | 'blur';
 

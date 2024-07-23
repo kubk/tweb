@@ -1,3 +1,4 @@
+// @ts-nocheck
 export function scaleImageData(sourceImageData: ImageData, targetSize = 300): ImageData {
   const sourceCanvas = document.createElement('canvas');
   sourceCanvas.width = sourceImageData.width;

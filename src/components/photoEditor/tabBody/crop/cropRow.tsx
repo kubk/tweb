@@ -10,7 +10,7 @@ export const CropRow = (props: {
   return (
     <div
       class={'cropRow'}
-      classList={{ selected: props.isSelected }}
+      classList={{selected: props.isSelected}}
       onClick={props.onClick}
     >
       <span class={'cropIcon'}>{props.icon}</span>

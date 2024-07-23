@@ -6,7 +6,7 @@ import './stickerTabBody.scss';
 import {useCanvasManager} from '../../photoEditor';
 import wrapSticker from '../../../wrappers/sticker';
 import {getMiddleware} from '../../../../helpers/middleware';
-import {scaleImageData} from '../../crop/scaleImageData';
+import {scaleImageData} from '../../helpers/scaleImageData';
 
 
 export const StickerTabBody = () => {
@@ -18,6 +18,7 @@ export const StickerTabBody = () => {
     const emoticonsDropdown = new EmoticonsDropdown({
       customParentElement: wrapperRef,
       tabsToRender: [new StickersTab(rootScope.managers)],
+      fitToParent: true,
       preventCloseOnOut: true,
       overrideTabId: 0,
       onStickerClick: async(docId) => {
@@ -46,16 +47,12 @@ export const StickerTabBody = () => {
           }
         });
       },
-      onLoad: (element) => {
-        element.style.setProperty('--height', wrapperRef.offsetHeight + 'px');
-        element.style.maxHeight = wrapperRef.offsetHeight + 'px';
-      }
     });
     emoticonsDropdown.onButtonClick();
   })
 
   return <div class="stickersTabBody night"
     ref={wrapperRef!}>
-    <div ref={stickerContainer} class={'hiddenStickerContainer'}/>
+    <div ref={stickerContainer!} class={'hiddenStickerContainer'}/>
   </div>
 }

@@ -16,11 +16,13 @@ import {NeonTool} from './drawable/neonTool';
 import {ImageDrawable} from './drawable/imageDrawable';
 import {SimplePenTool} from './drawable/simplePenTool';
 import {EraserTool} from './drawable/eraserTool';
-import {fitImageIntoCanvas} from './crop/fitImageIntoCanvas';
+import {fitImageIntoCanvas} from './helpers/fitImageIntoCanvas';
 import {AspectRatio, CropAreaDrawable} from './drawable/cropAreaDrawable';
 import {TextAlign, TextDrawable, TextStyle} from './drawable/textDrawable';
 import {fonts} from './tabBody/text/textTabBody';
 import {createSignalWithOnchange} from './lib/createSignalWithOnchange';
+import {outerPadding, StickerDrawable} from './drawable/stickerDrawable';
+import {randomMinMax} from './lib/randomMinMax';
 
 export type Tool = 'pen' | 'arrow' | 'brush' | 'neon' | 'blur' | 'eraser';
 
@@ -35,7 +37,7 @@ type Mode =
       name: 'drawing';
       currentLine?: Drawable;
     }
-  | { name: 'dragging'; draggingObject: TextDrawable|ImageDrawable }
+  | { name: 'dragging'; draggingObject: DraggableResizable }
   | { name: 'cropping'; cropArea?: CropAreaDrawable };
 
 export type State = {
@@ -46,16 +48,26 @@ export type State = {
   height: number;
 };
 
+type DraggableResizable = TextDrawable | StickerDrawable;
+
+const isDraggableResizable = (
+  drawable: Drawable
+): drawable is DraggableResizable => {
+  return (
+    drawable instanceof TextDrawable || drawable instanceof StickerDrawable
+  );
+};
+
 const tabs = ['enhance', 'crop', 'text', 'draw', 'sticker'] as const;
 type EditorTab = (typeof tabs)[number];
-
-const undoStackLimit = 10;
 
 const drawingTools = ['pen', 'arrow', 'brush', 'neon'] as const;
 type DrawingTool = (typeof drawingTools)[number];
 const isDrawingTool = (tool: Tool): tool is DrawingTool => {
   return drawingTools.includes(tool as any);
 };
+
+const undoStackLimit = 15;
 
 export class CanvasManager {
   undoStack: State[] = [];
@@ -103,7 +115,6 @@ export class CanvasManager {
   private canvasContainerRef: HTMLDivElement | null = null;
 
   onResetRotationAngle?: () => void;
-  textDrawableResizing?: TextDrawable;
 
   canUndo = createSignal(false);
   canRedo = createSignal(false);
@@ -125,7 +136,7 @@ export class CanvasManager {
     // img.src = "/img-sq40x40.png";
     img.onload = () => {
       this.drawImage(img);
-      this.switchTab('text');
+      this.switchTab('sticker');
     };
   }
 
@@ -153,10 +164,13 @@ export class CanvasManager {
       this.draw();
     }
 
-    if(tab !== 'text' && previousTab() === 'text') {
+    if(
+      (tab !== 'text' && previousTab() === 'text') ||
+      (tab !== 'sticker' && previousTab() === 'sticker')
+    ) {
       this.setCursor('default');
       this.drawables.forEach((drawable) => {
-        if(drawable instanceof TextDrawable) {
+        if(isDraggableResizable(drawable)) {
           drawable.isSelected = false;
         }
       });
@@ -170,15 +184,12 @@ export class CanvasManager {
       const [, setAspectRatio] = this.cropAspectRatio;
       setAspectRatio('free');
       this.drawables.push(cropAreaDrawable);
-      modifyMutable(
-        this.mode,
-        reconcile<Mode, Mode>({name: 'cropping', cropArea: cropAreaDrawable})
-      );
+      this.updateMode({name: 'cropping', cropArea: cropAreaDrawable});
       this.draw();
     } else if(tab === 'draw') {
-      modifyMutable(this.mode, reconcile<Mode, Mode>({name: 'drawing'}));
+      this.updateMode({name: 'drawing'});
     } else {
-      modifyMutable(this.mode, reconcile<Mode, Mode>({name: 'idle'}));
+      this.updateMode({name: 'idle'});
     }
   }
 
@@ -304,7 +315,7 @@ export class CanvasManager {
     const [tab] = this.tab;
 
     const mode = this.mode;
-    if(mode?.name === 'drawing') {
+    if(mode.name === 'drawing') {
       const color = this.currentDrawColor();
       const [size] = this.drawSize;
       const [tool] = this.tool;
@@ -323,56 +334,25 @@ export class CanvasManager {
       }
 
       const objectToDrag = this.drawables
-      .filter((drawable) => drawable instanceof TextDrawable || (drawable instanceof ImageDrawable  && drawable.isDraggable))
+      .filter(isDraggableResizable)
       .find((drawable) => drawable.containsPoint(mouseX, mouseY));
 
       if(currentTab === 'sticker') {
-        if(objectToDrag && objectToDrag instanceof ImageDrawable) {
-          assert(objectToDrag.isDraggable);
-          modifyMutable(
-            this.mode,
-            reconcile<Mode, Mode>({
-              name: 'dragging',
-              draggingObject: objectToDrag
-            })
-          );
-
+        if(objectToDrag) {
+          this.updateMode({name: 'dragging', draggingObject: objectToDrag});
+          this.selectDrawable(objectToDrag);
           objectToDrag.onMouseDown(mouseX, mouseY);
           this.draw();
+          this.saveState();
         }
       } else if(currentTab === 'text') {
-        const hasSelectedText = this.drawables.find(
-          (drawable) => drawable instanceof TextDrawable && drawable.isSelected
-        );
-
-        if(hasSelectedText) {
-          this.drawables.forEach((drawable) => {
-            if(drawable instanceof TextDrawable) {
-              drawable.isSelected = false;
-            }
-          });
-          this.draw();
-          this.setCursor('crosshair');
-        }
-
-        if(!hasSelectedText && !objectToDrag) {
-          this.addText(mouseX, mouseY);
-        }
-
         if(!objectToDrag) {
+          this.addText(mouseX, mouseY);
           return;
         }
 
-        assert(objectToDrag instanceof TextDrawable);
-        objectToDrag.isSelected = true;
-        this.textDrawableResizing = objectToDrag;
-        modifyMutable(
-          this.mode,
-          reconcile<Mode, Mode>({
-            name: 'dragging',
-            draggingObject: objectToDrag
-          })
-        );
+        this.selectDrawable(objectToDrag);
+        this.updateMode({name: 'dragging', draggingObject: objectToDrag});
         objectToDrag.onMouseDown(mouseX, mouseY);
         this.draw();
         this.saveState();
@@ -384,14 +364,14 @@ export class CanvasManager {
     }
   };
 
-  private selectTextDrawable(selected?: Drawable) {
+  private selectDrawable(selected?: Drawable) {
     this.drawables.forEach((drawable) => {
-      if(drawable instanceof TextDrawable) {
+      if(isDraggableResizable(drawable)) {
         drawable.isSelected = false;
       }
     });
 
-    if(selected && selected instanceof TextDrawable) {
+    if(selected && isDraggableResizable(selected)) {
       selected.isSelected = true;
     }
   }
@@ -404,37 +384,31 @@ export class CanvasManager {
     const rect = this.canvasSafe.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
+    const [tab] = this.tab;
 
-    if(this.tab[0]() === 'text') {
-      if(this.textDrawableResizing) {
-        this.textDrawableResizing.onMouseMove(mouseX, mouseY, this.ctx);
+    if(tab() === 'sticker' || tab() === 'text') {
+      const hoveredResizable = this.drawables
+      .filter(isDraggableResizable)
+      .find((drawable) => drawable.containsPoint(mouseX, mouseY));
+
+      if(hoveredResizable) {
+        this.setCursor('grab');
+        hoveredResizable.onMouseMove(mouseX, mouseY, this.ctx);
         this.draw();
       } else {
-        const objectToMove = this.drawables
-        .filter(
-          (drawable): drawable is TextDrawable =>
-            drawable instanceof TextDrawable
-        )
-        .find((drawable) => drawable.containsPoint(mouseX, mouseY));
-
-        if(objectToMove) {
-          this.textDrawableResizing = objectToMove;
-          objectToMove.onMouseMove(mouseX, mouseY, this.ctx);
-          this.draw();
-        }
+        this.setCursor(tab() === 'sticker' ? 'default' : 'crosshair');
       }
     }
 
     if(this.mode.name === 'drawing' && this.mode.currentLine) {
       this.mode.currentLine.onMouseMove(mouseX, mouseY, this.ctx);
       this.draw();
-    } else if(
-      this.mode.name === 'dragging' &&
-      this.mode.draggingObject?.isDragging
-    ) {
-      this.mode.draggingObject.onMouseMove(mouseX, mouseY, this.ctx);
-      this.selectTextDrawable(this.mode.draggingObject);
-      this.draw();
+    } else if(this.mode.name === 'dragging') {
+      if(this.mode.draggingObject) {
+        this.mode.draggingObject.onMouseMove(mouseX, mouseY, this.ctx);
+        this.selectDrawable(this.mode.draggingObject);
+        this.draw();
+      }
     } else if(this.mode.name === 'cropping') {
       this.mode.cropArea?.onMouseMove(mouseX, mouseY, this.ctx);
       this.draw();
@@ -447,7 +421,7 @@ export class CanvasManager {
       mode.currentLine = undefined;
     } else if(mode?.name === 'dragging' && mode.draggingObject) {
       mode.draggingObject.onMouseUp();
-      modifyMutable(this.mode, reconcile<Mode, Mode>({name: 'idle'}));
+      this.updateMode({name: 'idle'});
     } else if(mode?.name === 'cropping') {
       mode.cropArea?.onMouseUp();
     }
@@ -697,7 +671,7 @@ export class CanvasManager {
     assert(containerHeight, 'Container height is null');
     const {width, height} = fitImageIntoCanvas(
       containerWidth,
-      // -100 to accommodate angle picker in crop mode
+      // -100 to accommodate angle picker in helpers mode
       containerHeight - 100,
       img.width,
       img.height
@@ -720,14 +694,21 @@ export class CanvasManager {
 
   addSticker(data: ImageData, size: number) {
     this.saveState();
-    const imageData = ImageDrawable.fromImageData(data, size, size, createEffects(), new Set());
-    // @ts-ignore
-    imageData.x = 0
-    // @ts-ignore
-    imageData.y = 0
-    // @ts-ignore
-    imageData.isDraggable = true;
-    this.drawables.push(imageData);
+
+    const randomX = randomMinMax(outerPadding, this.canvasWidth - size);
+    const randomY = randomMinMax(outerPadding, this.canvasHeight - size);
+
+    const stickerDrawable = StickerDrawable.fromImageData(
+      randomX,
+      randomY,
+      data,
+      size,
+      size,
+      this.setCursor,
+      this.onDraggableRemove
+    );
+    this.selectDrawable(stickerDrawable);
+    this.drawables.push(stickerDrawable);
     this.draw();
   }
 
@@ -769,17 +750,17 @@ export class CanvasManager {
       textColor(),
       textAlign(),
       textStyle(),
-      this.onTextDrawableRemove,
+      this.onDraggableRemove,
       this.setCursor
     );
-    this.selectTextDrawable(textDrawable);
+    this.selectDrawable(textDrawable);
     this.drawables.push(textDrawable);
     this.draw();
   }
 
-  private onTextDrawableRemove = (id: number) => {
+  private onDraggableRemove = (id: number) => {
     this.drawables = this.drawables.filter((drawable) =>
-      drawable instanceof TextDrawable ? drawable.id !== id : true
+      isDraggableResizable(drawable) ? drawable.id !== id : true
     );
     this.draw();
   };
@@ -808,10 +789,17 @@ export class CanvasManager {
       return;
     }
 
-    if(tab() === 'text') {
-      this.findTextAndDo((selectedTextDrawable) => {
-        selectedTextDrawable.onKeyPress(event);
-      });
+    if(tab() === 'text' || tab() === 'sticker') {
+      const draggableResizableSelected = this.drawables.find(
+        (drawable) => isDraggableResizable(drawable) && drawable.isSelected
+      );
+      if(
+        draggableResizableSelected &&
+        isDraggableResizable(draggableResizableSelected)
+      ) {
+        draggableResizableSelected.onKeyPress(event);
+        this.draw();
+      }
     }
   };
 
@@ -843,6 +831,10 @@ export class CanvasManager {
     this.findTextAndDo((selectedTextDrawable) => {
       selectedTextDrawable.updateFontColor(color);
     });
+  }
+
+  private updateMode(newMode: Mode) {
+    modifyMutable(this.mode, reconcile<Mode, Mode>(newMode));
   }
 
   private findTextAndDo(cb: (selectedTextDrawable: TextDrawable) => void) {

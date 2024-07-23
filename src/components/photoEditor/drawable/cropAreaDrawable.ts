@@ -238,7 +238,7 @@ export class CropAreaDrawable extends Drawable {
     ) {
       this.updateCursor('nesw-resize');
     } else if(this.isInsideCropArea(x, y)) {
-      this.updateCursor('move');
+      this.updateCursor('grab');
     } else {
       this.updateCursor('default');
     }
