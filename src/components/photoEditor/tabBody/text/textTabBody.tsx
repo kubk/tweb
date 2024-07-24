@@ -10,7 +10,7 @@ import {
 } from './icons';
 import {For, JSXElement} from 'solid-js';
 import {TextAlign, TextStyle} from '../../drawable/textDrawable';
-import {useCanvasManager} from '../../photoEditor';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 export const fonts: Array<{ title: string; fontFamily: string }> = [
   {

@@ -1,6 +1,6 @@
 import {CloseIcon, RedoIcon, UndoIcon} from './icons';
 import './panelHeader.scss';
-import {useCanvasManager} from '../photoEditor';
+import {useCanvasManager} from '../canvasManagerContext';
 
 export const PanelHeader = (props: { onClose: () => void }) => {
   const canvasManager = useCanvasManager();

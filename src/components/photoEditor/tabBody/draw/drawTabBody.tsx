@@ -10,7 +10,7 @@ import {
   PenNeonIcon
 } from './icons';
 import {ColorSizePicker} from './colorSizePicker';
-import {useCanvasManager} from '../../photoEditor';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 export const DrawTabBody = () => {
   const canvasManager = useCanvasManager();

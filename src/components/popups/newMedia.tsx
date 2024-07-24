@@ -56,6 +56,9 @@ import {Accessor, createRoot, createSignal, Setter} from 'solid-js';
 import SelectedEffect from '../chat/selectedEffect';
 import PopupMakePaid from './makePaid';
 import paymentsWrapCurrencyAmount from '../../helpers/paymentsWrapCurrencyAmount';
+import {ImageActionsContainer} from './imageActionsContainer';
+import {appendPhotoEditor} from '../photoEditor/appendPhotoEditor';
+// import ButtonIcon from "../buttonIcon";
 
 type SendFileParams = SendFileDetails & {
   file?: File,
@@ -93,6 +96,7 @@ export default class PopupNewMedia extends PopupElement {
   private captionLengthMax: number;
 
   private animationGroup: AnimationItemGroup;
+  private isPhotoEditorOn = false;
 
   constructor(
     private chat: Chat,
@@ -616,11 +620,13 @@ export default class PopupNewMedia extends PopupElement {
     this.willAttach.invertMedia = above || undefined;
   }
 
+  private isSameFile(_file: File, file: File) {
+    return _file.lastModified === file.lastModified && _file.name === file.name && _file.size === file.size;
+  }
+
   public addFiles(files: File[]) {
     const toPush = files.filter((file) => {
-      const found = this.files.find((_file) => {
-        return _file.lastModified === file.lastModified && _file.name === file.name && _file.size === file.size;
-      });
+      const found = this.files.find((_file) => this.isSameFile(_file, file));
 
       return !found;
     });
@@ -637,6 +643,7 @@ export default class PopupNewMedia extends PopupElement {
   }
 
   private onKeyDown = (e: KeyboardEvent) => {
+    if(this.isPhotoEditorOn) return;
     const target = e.target as HTMLElement;
     const {input} = this.messageInputField;
     if(target !== input) {
@@ -650,6 +657,7 @@ export default class PopupNewMedia extends PopupElement {
   };
 
   private async send(force = false) {
+    if(this.isPhotoEditorOn) return;
     let {value: caption, entities} = getRichValueWithCaret(this.messageInputField.input, true, false);
     if(caption.length > this.captionLengthMax) {
       toast(I18n.format('Error.PreviewSender.CaptionTooLong', true));
@@ -814,6 +822,23 @@ export default class PopupNewMedia extends PopupElement {
     return scaledBlob && {url, blob: scaledBlob};
   }
 
+  private  insertAndScaleImageToHtml = async(img: HTMLImageElement, params: SendFileParams, editedFile: File) => {
+    params.file = editedFile;
+    const url = params.objectURL = await apiManagerProxy.invoke('createObjectURL', editedFile);
+    await renderImageFromUrlPromise(img, url);
+    const mimeType = params.file.type as MTMimeType;
+    const scaled = await this.scaleImageForTelegram(img, mimeType, true);
+    if(scaled) {
+      params.objectURL = scaled.url;
+      params.scaledBlob = scaled.blob;
+    }
+    params.width = img.naturalWidth;
+    params.height = img.naturalHeight;
+
+    return url;
+  }
+
+
   private async attachMedia(params: SendFileParams) {
     const {itemDiv} = params;
     itemDiv.classList.add('popup-item-media');
@@ -863,18 +888,8 @@ export default class PopupNewMedia extends PopupElement {
     } else {
       const img = new Image();
       itemDiv.append(img);
-      const url = params.objectURL = await apiManagerProxy.invoke('createObjectURL', file);
 
-      await renderImageFromUrlPromise(img, url);
-      const mimeType = params.file.type as MTMimeType;
-      const scaled = await this.scaleImageForTelegram(img, mimeType, true);
-      if(scaled) {
-        params.objectURL = scaled.url;
-        params.scaledBlob = scaled.blob;
-      }
-
-      params.width = img.naturalWidth;
-      params.height = img.naturalHeight;
+      params.objectURL = await this.insertAndScaleImageToHtml(img, params, file);
 
       if(file.type === 'image/gif') {
         params.noSound = true;
@@ -892,6 +907,35 @@ export default class PopupNewMedia extends PopupElement {
           })
         ]).then(() => {});
       }
+
+      this.appendSolidToElement(itemDiv, () => <ImageActionsContainer
+        onEnhance={() => {
+          this.isPhotoEditorOn = true;
+          const image = new Image();
+          image.src = URL.createObjectURL(params.file);
+
+          appendPhotoEditor({image, onDone: async(file, onClose) => {
+            await this.insertAndScaleImageToHtml(img, params, file);
+            this.isPhotoEditorOn = false;
+            onClose();
+          }})
+        }}
+        onSpoiler={() => {
+          if(params.mediaSpoiler == null) {
+            this.applyMediaSpoiler(params)
+          } else {
+            this.removeMediaSpoiler(params);
+          }
+        }}
+        onRemove={() => {
+          this.files = this.files.filter((_file) => !this.isSameFile(_file, params.file))
+          if(this.files.length === 0) {
+            this.hide();
+          } else {
+            this.attachFiles();
+          }
+        }}
+      />)
     }
   }
 

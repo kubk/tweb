@@ -176,7 +176,7 @@ export class EmoticonsDropdown extends DropdownHover {
 
 
       if(options.customParentElement) {
-        if (options.fitToParent) {
+        if(options.fitToParent) {
           this.element.style.setProperty('--height', options.customParentElement.offsetHeight + 'px');
           this.element.style.maxHeight = options.customParentElement.offsetHeight + 'px';
         }

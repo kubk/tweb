@@ -16,7 +16,7 @@ import {NeonTool} from './drawable/neonTool';
 import {ImageDrawable} from './drawable/imageDrawable';
 import {SimplePenTool} from './drawable/simplePenTool';
 import {EraserTool} from './drawable/eraserTool';
-import {fitImageIntoCanvas} from './helpers/fitImageIntoCanvas';
+import {fitImageIntoCanvas} from './lib/fitImageIntoCanvas';
 import {AspectRatio, CropAreaDrawable} from './drawable/cropAreaDrawable';
 import {TextAlign, TextDrawable, TextStyle} from './drawable/textDrawable';
 import {fonts} from './tabBody/text/textTabBody';
@@ -119,24 +119,9 @@ export class CanvasManager {
   canUndo = createSignal(false);
   canRedo = createSignal(false);
 
-  constructor() {
-    // @ts-ignore
-    window['editor'] = this;
-
-    // load image
-    const img = new Image();
-    // img.src = "/img.png";
-    // img.src = "/img2.png";
-    // img.src = "/img3.png";
-    // img.src = "/portrait-middle.png";
-    img.src = '/hd-avif.avif';
-    // img.src = "/vertical-low-res.jpeg";
-    // img.src = "/vertical-high-res.jpeg";
-    // img.src = "/small-white.png";
-    // img.src = "/img-sq40x40.png";
-    img.onload = () => {
-      this.drawImage(img);
-      this.switchTab('sticker');
+  constructor(image: HTMLImageElement) {
+    image.onload = () => {
+      this.drawImage(image);
     };
   }
 

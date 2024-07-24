@@ -1,12 +1,4 @@
-import {
-  createContext,
-  createEffect,
-  JSXElement,
-  Match,
-  onCleanup,
-  Switch,
-  useContext
-} from 'solid-js';
+import {createEffect, Match, onCleanup, Switch} from 'solid-js';
 import {CanvasManager} from './canvasManager';
 import './photoEditor.scss';
 import {EnhanceTabBody} from './tabBody/enhance/enhanceTabBody';
@@ -17,30 +9,12 @@ import {CropTabBody} from './tabBody/crop/cropTabBody';
 import {PhotoEditDoneButton} from './lib/photoEditDoneButton';
 import {CropRotatePanel} from './tabBody/crop/cropRotatePanel';
 import {TextTabBody} from './tabBody/text/textTabBody';
-import {assert} from './lib/assert';
 import {StickerTabBody} from './tabBody/sticker/stickerTabBody';
+import {useCanvasManager} from './canvasManagerContext';
 
 type Props = {
-  onDoneClick: (canvasManager: CanvasManager) => void;
+  onDone: (canvas: HTMLCanvasElement) => void;
   onClose: () => void;
-};
-
-const CanvasManagerContext = createContext<CanvasManager | null>(null);
-
-export const CanvasManagerProvider = (props: { children: JSXElement }) => {
-  const canvasManager = new CanvasManager();
-
-  return (
-    <CanvasManagerContext.Provider value={canvasManager}>
-      {props.children}
-    </CanvasManagerContext.Provider>
-  );
-};
-
-export const useCanvasManager = () => {
-  const manager = useContext(CanvasManagerContext);
-  assert(manager, 'PhotoEditor must be within CanvasManagerProvider');
-  return manager;
 };
 
 export const PhotoEditor = (props: Props) => {
@@ -90,7 +64,7 @@ export const PhotoEditor = (props: Props) => {
 
         <PhotoEditDoneButton
           onClick={() => {
-            props.onDoneClick(canvasManager);
+            props.onDone(canvasRef);
           }}
         />
       </div>

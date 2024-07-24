@@ -3,10 +3,10 @@ import {EmoticonsDropdown} from '../../../emoticonsDropdown';
 import StickersTab from '../../../emoticonsDropdown/tabs/stickers';
 import rootScope from '../../../../lib/rootScope';
 import './stickerTabBody.scss';
-import {useCanvasManager} from '../../photoEditor';
 import wrapSticker from '../../../wrappers/sticker';
 import {getMiddleware} from '../../../../helpers/middleware';
-import {scaleImageData} from '../../helpers/scaleImageData';
+import {scaleImageData} from '../../lib/scaleImageData';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 
 export const StickerTabBody = () => {
@@ -46,7 +46,7 @@ export const StickerTabBody = () => {
             })
           }
         });
-      },
+      }
     });
     emoticonsDropdown.onButtonClick();
   })

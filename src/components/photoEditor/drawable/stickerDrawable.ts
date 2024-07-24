@@ -1,6 +1,6 @@
 import {Drawable} from './drawable';
-import {getNextId} from '../helpers/getNextId';
-import {ResizeHandle} from '../helpers/resizeHandle';
+import {getNextId} from '../lib/getNextId';
+import {ResizeHandle} from '../lib/resizeHandle';
 import {assert} from '../lib/assert';
 
 export const outerPadding = 6;

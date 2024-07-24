@@ -2,7 +2,7 @@ import {Drawable} from './drawable';
 import {applyEffects} from '../effects/apply-effects';
 import {Effects} from '../effects/effects';
 import {assert} from '../lib/assert';
-import {calculateScaleForRotation} from '../helpers/calculateScaleForRotation';
+import {calculateScaleForRotation} from '../lib/calculateScaleForRotation';
 
 export class ImageDrawable extends Drawable {
   private originalHtmlImage?: HTMLImageElement;

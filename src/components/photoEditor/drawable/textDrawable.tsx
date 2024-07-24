@@ -1,7 +1,7 @@
 import {Drawable} from './drawable';
 import {clamp} from '../lib/clamp';
-import {getNextId} from '../helpers/getNextId';
-import {ResizeHandle} from '../helpers/resizeHandle';
+import {getNextId} from '../lib/getNextId';
+import {ResizeHandle} from '../lib/resizeHandle';
 
 export type TextAlign = 'left' | 'center' | 'right';
 export type TextStyle = 'plain' | 'outline' | 'background';

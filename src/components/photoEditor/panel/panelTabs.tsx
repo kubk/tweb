@@ -1,7 +1,7 @@
 import {TabIcon} from '../tabIcons/tabIcon';
 import {CropIcon, DrawIcon, EnhanceIcon, TextIcon, StickersTabIcon} from '../tabIcons/icons';
 import './panelTabs.scss';
-import {useCanvasManager} from '../photoEditor';
+import {useCanvasManager} from '../canvasManagerContext';
 
 export const PanelTabs = () => {
   const canvasManager = useCanvasManager();

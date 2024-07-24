@@ -1,7 +1,7 @@
 import {CropFlipIcon, CropRotateIcon} from './icons';
 import './cropRotatePanel.scss';
 import {AnglePicker} from '../../lib/angle-picker/anglePicker';
-import {useCanvasManager} from '../../photoEditor';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 export const CropRotatePanel = () => {
   const canvasManager = useCanvasManager();

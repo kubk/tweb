@@ -4,7 +4,7 @@ import {debounce} from '../../lib/debounce';
 import './enhanceTabBody.scss';
 import {BidirectionalSlider} from '../bidirectionalSlider';
 import {PositiveSlider} from '../positiveSlider';
-import {useCanvasManager} from '../../photoEditor';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 export const EnhanceTabBody = () => {
   const canvasManager = useCanvasManager();

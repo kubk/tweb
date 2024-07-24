@@ -195,6 +195,39 @@
     }
   }
 
+  .imageActionsContainer {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 6px;
+    align-items: center;
+    gap: 16px;
+    border-radius: 16px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    transition: opacity var(--transition-standard-easing) var(--transition-standard-in-time);
+    cursor: pointer;
+
+    .actionIcon {
+      color: var(--white);
+      opacity: 70%;
+      transition: opacity var(--transition-standard-easing) var(--transition-standard-in-time);
+
+      &:hover {
+        opacity: 100%;
+      }
+    }
+  }
+
+  .popup-item-media:hover .imageActionsContainer {
+    opacity: 0.95;
+  }
+
   .popup-photo > .popup-item-media {
     display: flex;
     justify-content: center;

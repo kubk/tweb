@@ -18,7 +18,7 @@ import {
 import {AspectRatio} from '../../drawable/cropAreaDrawable';
 import {CropRow} from './cropRow';
 import {ApplyCrop} from './applyCrop';
-import {useCanvasManager} from '../../photoEditor';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 export const CropTabBody = () => {
   const canvasManager = useCanvasManager();

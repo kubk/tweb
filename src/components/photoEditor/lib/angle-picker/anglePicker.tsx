@@ -1,7 +1,7 @@
 import {batch, createSignal, For, onCleanup, onMount, Signal} from 'solid-js';
 import './anglePicker.scss';
 import {clamp} from '../clamp';
-import {useCanvasManager} from '../../photoEditor';
+import {useCanvasManager} from '../../canvasManagerContext';
 
 export type AngleDot = {
   angle: number;
