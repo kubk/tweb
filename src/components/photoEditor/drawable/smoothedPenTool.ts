@@ -63,7 +63,6 @@ export class SmoothedPenTool extends Drawable {
       maxLineWidth - velocity * velocityFactor
     );
 
-    // Smooth transition of line width
     return this.currentLineWidth * 0.9 + targetLineWidth * 0.1;
   }
 

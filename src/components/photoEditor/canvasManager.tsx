@@ -13,8 +13,7 @@ import {SmoothedPenTool} from './drawable/smoothedPenTool';
 import {ArrowTool} from './drawable/arrowTool';
 import {BrushTool} from './drawable/brushTool';
 import {NeonTool} from './drawable/neonTool';
-import {ImageDrawable} from './drawable/imageDrawable';
-import {SimplePenTool} from './drawable/simplePenTool';
+import {BgImageDrawable} from './drawable/bgImageDrawable';
 import {EraserTool} from './drawable/eraserTool';
 import {fitImageIntoCanvas} from './lib/fitImageIntoCanvas';
 import {AspectRatio, CropAreaDrawable} from './drawable/cropAreaDrawable';
@@ -278,7 +277,7 @@ export class CanvasManager {
         })();
 
         if(!imageData) {
-          return new SimplePenTool(options);
+          return new SmoothedPenTool(options);
         }
 
         return new EraserTool(mode, {
@@ -289,7 +288,7 @@ export class CanvasManager {
         });
       }
       default:
-        return new SimplePenTool(options);
+        return new SmoothedPenTool(options);
     }
   }
 
@@ -451,7 +450,7 @@ export class CanvasManager {
     this.saveState();
     const croppedImageData = this.ctx.getImageData(x, y, width, height);
 
-    const imageDrawable = ImageDrawable.fromImageData(
+    const imageDrawable = BgImageDrawable.fromImageData(
       croppedImageData,
       width,
       height,
@@ -476,7 +475,7 @@ export class CanvasManager {
     this.draw();
     this.saveState();
 
-    const imageDrawable = ImageDrawable.fromImageData(
+    const imageDrawable = BgImageDrawable.fromImageData(
       this.getFullCanvasData(),
       this.canvasWidth,
       this.canvasHeight,
@@ -619,9 +618,9 @@ export class CanvasManager {
     this.syncHistoryWithSignals();
   }
 
-  private getLastImageDrawable(): ImageDrawable | undefined {
-    const imageDrawables: Array<ImageDrawable> = this.drawables.filter(
-      (drawable) => drawable instanceof ImageDrawable
+  private getLastImageDrawable(): BgImageDrawable | undefined {
+    const imageDrawables: Array<BgImageDrawable> = this.drawables.filter(
+      (drawable) => drawable instanceof BgImageDrawable
     ) as any;
 
     return imageDrawables.length ? imageDrawables.at(-1) : undefined;
@@ -651,9 +650,9 @@ export class CanvasManager {
 
   async drawImage(img: HTMLImageElement) {
     const containerWidth = this.canvasContainerRef?.clientWidth;
-    assert(containerWidth, 'Container width is null');
     const containerHeight = this.canvasContainerRef?.clientHeight;
-    assert(containerHeight, 'Container height is null');
+    if(!containerWidth || !containerHeight) return;
+
     const {width, height} = fitImageIntoCanvas(
       containerWidth,
       // -100 to accommodate angle picker in helpers mode
@@ -666,7 +665,7 @@ export class CanvasManager {
     this.canvasSafe.height = Math.min(height, containerHeight);
 
     this.drawables.push(
-      ImageDrawable.fromImage(
+      BgImageDrawable.fromImage(
         img,
         width,
         height,

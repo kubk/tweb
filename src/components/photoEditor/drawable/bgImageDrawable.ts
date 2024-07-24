@@ -4,7 +4,7 @@ import {Effects} from '../effects/effects';
 import {assert} from '../lib/assert';
 import {calculateScaleForRotation} from '../lib/calculateScaleForRotation';
 
-export class ImageDrawable extends Drawable {
+export class BgImageDrawable extends Drawable {
   private originalHtmlImage?: HTMLImageElement;
   private originalImageData?: ImageData;
   private angle: number;
@@ -19,9 +19,6 @@ export class ImageDrawable extends Drawable {
   ) {
     super();
     this.angle = angle % 360;
-
-    // @ts-ignore
-    window['img'] = this;
   }
 
   static fromImage(
@@ -34,7 +31,7 @@ export class ImageDrawable extends Drawable {
   ) {
     const offscreenCanvas = new OffscreenCanvas(width, height);
 
-    const self = new ImageDrawable(
+    const self = new BgImageDrawable(
       width,
       height,
       effects,
@@ -58,7 +55,7 @@ export class ImageDrawable extends Drawable {
   ) {
     const processedCanvas = new OffscreenCanvas(width, height);
 
-    const self = new ImageDrawable(
+    const self = new BgImageDrawable(
       width,
       height,
       effects,
@@ -147,7 +144,7 @@ export class ImageDrawable extends Drawable {
     this.redrawProcessedCanvas();
   }
 
-  rotate90(): { drawable: ImageDrawable; width: number; height: number } {
+  rotate90(): { drawable: BgImageDrawable; width: number; height: number } {
     const sourceWidth = this.width;
     const sourceHeight = this.height;
     const angle = -Math.PI / 2;
@@ -176,7 +173,7 @@ export class ImageDrawable extends Drawable {
     );
 
     return {
-      drawable: ImageDrawable.fromImageData(
+      drawable: BgImageDrawable.fromImageData(
         ctx.getImageData(0, 0, newWidth, newHeight),
         newWidth,
         newHeight,
@@ -188,7 +185,7 @@ export class ImageDrawable extends Drawable {
     };
   }
 
-  flip(): ImageDrawable {
+  flip(): BgImageDrawable {
     const offscreenCanvas = new OffscreenCanvas(this.width, this.height);
     const ctx = offscreenCanvas.getContext('2d') as any;
     assert(ctx, 'Failed to get 2d context');
@@ -197,7 +194,7 @@ export class ImageDrawable extends Drawable {
     ctx.scale(-1, 1);
     ctx.drawImage(this.processedCanvas, 0, 0);
 
-    return ImageDrawable.fromImageData(
+    return BgImageDrawable.fromImageData(
       ctx.getImageData(0, 0, this.width, this.height),
       this.width,
       this.height,
@@ -228,7 +225,7 @@ export class ImageDrawable extends Drawable {
   clone() {
     const offscreenCanvas = new OffscreenCanvas(this.width, this.height);
 
-    const copy = new ImageDrawable(
+    const copy = new BgImageDrawable(
       this.width,
       this.height,
       this.effects,
