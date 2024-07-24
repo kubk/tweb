@@ -367,6 +367,7 @@ export class EmoticonsDropdown extends DropdownHover {
       this.chatInput.messageInputField.simulateInputEvent();
     }, {listenerSetter: this.listenerSetter});
 
+    // Without this check code breaks when there is no emoji tab
     const hasEmojiTab = !!this.getTab(EmojiTab);
     const HIDE_EMOJI_TAB = IS_APPLE_MOBILE || !hasEmojiTab;
 
