@@ -20,11 +20,9 @@ export const appendPhotoEditor = (props: Props) => {
 
   render(
     () => <CanvasManagerProvider image={props.image}>
-      <PhotoEditor onDone={(canvas) => {
-        canvas.toBlob((blob) => {
-          const file = new File([blob], 'canvas_image.png');
-          props.onDone(file, onClose);
-        })
+      <PhotoEditor onDone={async(canvasManager) => {
+        const file = await canvasManager.toFile()
+        props.onDone(file, onClose);
       }} onClose={onClose}/>
     </CanvasManagerProvider>,
     photoEditor

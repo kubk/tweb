@@ -13,7 +13,7 @@ import {StickerTabBody} from './tabBody/sticker/stickerTabBody';
 import {useCanvasManager} from './canvasManagerContext';
 
 type Props = {
-  onDone: (canvas: HTMLCanvasElement) => void;
+  onDone: (canvasManager: CanvasManager) => void;
   onClose: () => void;
 };
 
@@ -64,7 +64,7 @@ export const PhotoEditor = (props: Props) => {
 
         <PhotoEditDoneButton
           onClick={() => {
-            props.onDone(canvasRef);
+            props.onDone(canvasManager);
           }}
         />
       </div>

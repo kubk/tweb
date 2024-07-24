@@ -830,4 +830,19 @@ export class CanvasManager {
     cb(selectedTextDrawable);
     this.draw();
   }
+
+  toFile(): Promise<File> {
+    return new Promise((resolve) => {
+      this.drawables = this.drawablesWithoutCropArea();
+      this.drawables.forEach(drawable => {
+        if(isDraggableResizable(drawable)) {
+          drawable.isSelected = false;
+        }
+      })
+      this.draw();
+      this.canvas.toBlob((blob) => {
+        resolve(new File([blob], 'canvas_image.png'))
+      })
+    })
+  }
 }

@@ -671,9 +671,10 @@ export class EmoticonsDropdown extends DropdownHover {
 
     if(this.onStickerClick) {
       this.onStickerClick(docId);
-    } else {
-      return this.sendDocId({document: docId, clearDraft, silent, target, ignoreNoPremium});
+      return;
     }
+
+    return this.sendDocId({document: docId, clearDraft, silent, target, ignoreNoPremium});
   };
 
   public async sendDocId(options: Parameters<ChatInput['sendMessageWithDocument']>[0]) {
