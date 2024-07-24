@@ -11,6 +11,7 @@ import {CropRotatePanel} from './tabBody/crop/cropRotatePanel';
 import {TextTabBody} from './tabBody/text/textTabBody';
 import {StickerTabBody} from './tabBody/sticker/stickerTabBody';
 import {useCanvasManager} from './canvasManagerContext';
+import RowTsx from '../rowTsx';
 
 type Props = {
   onDone: (canvasManager: CanvasManager) => void;
@@ -41,21 +42,21 @@ export const PhotoEditor = (props: Props) => {
         {tab() === 'crop' && <CropRotatePanel />}
       </div>
       <div class="panel">
-        <PanelHeader onClose={props.onClose} />
-        <PanelTabs />
+        <PanelHeader onClose={props.onClose}/>
+        <PanelTabs/>
 
         <Switch>
           <Match when={tab() === 'enhance'}>
-            <EnhanceTabBody />
+            <EnhanceTabBody/>
           </Match>
           <Match when={tab() === 'crop'}>
-            <CropTabBody />
+            <CropTabBody/>
           </Match>
           <Match when={tab() === 'text'}>
-            <TextTabBody />
+            <TextTabBody/>
           </Match>
           <Match when={tab() === 'draw'}>
-            <DrawTabBody />
+            <DrawTabBody/>
           </Match>
           <Match when={tab() === 'sticker'}>
             <StickerTabBody/>

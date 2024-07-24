@@ -1,5 +1,6 @@
 import './tabIcon.scss';
 import {JSXElement} from 'solid-js';
+import RowTsx from '../../rowTsx';
 
 export const TabIcon = (props: {
   isActive: boolean;
@@ -8,11 +9,16 @@ export const TabIcon = (props: {
 }) => {
   return (
     <div
-      class="editor-tab-icon"
-      onClick={props.onClick}
+      class="editor-tab-icon night"
       classList={{active: props.isActive}}
     >
-      {props.children}
+      <RowTsx
+        title={<div class={'tabIconWrapper'} classList={{active: props.isActive}}>
+          {props.children}
+        </div>}
+        clickable={props.onClick}
+      />
+
       {props.isActive && (
         <svg
           width="24"

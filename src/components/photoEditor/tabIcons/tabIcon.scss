@@ -2,18 +2,24 @@
   .editor-tab-icon {
     display: flex;
     flex-direction: column;
-    color: rgba(170, 170, 170, 1);
     cursor: pointer;
-    height: 36px;
+    height: 48px;
+    justify-content: center;
     position: relative;
 
     .active-border {
       position: absolute;
       bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
-    &:active {
-      transform: scale(0.9);
+    .tabIconWrapper {
+     color: rgba(170, 170, 170, 1);
+
+      &.active {
+        color: rgba(78, 142, 229, 1);
+      }
     }
 
     &.active {

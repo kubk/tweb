@@ -817,20 +817,6 @@ export class CanvasManager {
     });
   }
 
-  private updateMode(newMode: Mode) {
-    modifyMutable(this.mode, reconcile<Mode, Mode>(newMode));
-  }
-
-  private findTextAndDo(cb: (selectedTextDrawable: TextDrawable) => void) {
-    const selectedTextDrawable = this.drawables.find(
-      (drawable) => drawable instanceof TextDrawable && drawable.isSelected
-    );
-    if(!selectedTextDrawable) return;
-    assert(selectedTextDrawable instanceof TextDrawable);
-    cb(selectedTextDrawable);
-    this.draw();
-  }
-
   toFile(): Promise<File> {
     return new Promise((resolve) => {
       this.drawables = this.drawablesWithoutCropArea();
@@ -844,5 +830,19 @@ export class CanvasManager {
         resolve(new File([blob], 'canvas_image.png'))
       })
     })
+  }
+
+  private updateMode(newMode: Mode) {
+    modifyMutable(this.mode, reconcile<Mode, Mode>(newMode));
+  }
+
+  private findTextAndDo(cb: (selectedTextDrawable: TextDrawable) => void) {
+    const selectedTextDrawable = this.drawables.find(
+      (drawable) => drawable instanceof TextDrawable && drawable.isSelected
+    );
+    if(!selectedTextDrawable) return;
+    assert(selectedTextDrawable instanceof TextDrawable);
+    cb(selectedTextDrawable);
+    this.draw();
   }
 }

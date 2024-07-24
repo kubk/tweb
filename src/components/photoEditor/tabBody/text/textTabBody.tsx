@@ -11,6 +11,7 @@ import {
 import {For, JSXElement} from 'solid-js';
 import {TextAlign, TextStyle} from '../../drawable/textDrawable';
 import {useCanvasManager} from '../../canvasManagerContext';
+import RowTsx from '../../../rowTsx';
 
 export const fonts: Array<{ title: string; fontFamily: string }> = [
   {
@@ -87,13 +88,15 @@ export const TextTabBody = () => {
                 {(align) => (
                   <div
                     class="textPropertyItem"
-                    onClick={() => {
-                      const [, setTextAlign] = canvasManager.textAlign;
-                      setTextAlign(align.align);
-                    }}
-                    classList={{isSelected: textAlign() === align.align}}
                   >
-                    {align.icon}
+                    <RowTsx
+                      isFlex={true}
+                      title={align.icon}
+                      isSelected={textAlign() === align.align}
+                      clickable={() => {
+                        const [, setTextAlign] = canvasManager.textAlign;
+                        setTextAlign(align.align);
+                      }} />
                   </div>
                 )}
               </For>
@@ -104,12 +107,14 @@ export const TextTabBody = () => {
                 {(style) => (
                   <div
                     class="textPropertyItem"
-                    onClick={() => {
-                      canvasManager.textStyle[1](style.style);
-                    }}
-                    classList={{isSelected: textStyle() === style.style}}
                   >
-                    {style.icon}
+                    <RowTsx
+                      isFlex={true}
+                      title={style.icon}
+                      isSelected={textStyle() === style.style}
+                      clickable={() => {
+                        canvasManager.textStyle[1](style.style);
+                      }} />
                   </div>
                 )}
               </For>
@@ -123,20 +128,11 @@ export const TextTabBody = () => {
         <For each={fonts}>
           {(font) => {
             const [textFont, setTextFont] = canvasManager.textFont;
-            return (
-              <div
-                class="fontListRow"
-                style={{'font-family': font.fontFamily}}
-                onClick={() => {
-                  setTextFont(font.fontFamily);
-                }}
-                classList={{
-                  isSelected: textFont() === font.fontFamily
-                }}
-              >
-                {font.title}
-              </div>
-            );
+            return <div style={{'font-family': font.fontFamily}} class={'night'}>
+              <RowTsx title={font.title} isSelected={textFont() === font.fontFamily} clickable={() => {
+                setTextFont(font.fontFamily);
+              }}/>
+            </div>
           }}
         </For>
       </div>

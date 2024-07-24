@@ -40,6 +40,9 @@ export default function RowTsx(props: Partial<{
   havePadding: boolean,
   noRipple: boolean,
   noWrap: boolean,
+  isSelected?: boolean;
+  fullWidth?: boolean;
+  isFlex?: boolean;
   disabled: boolean,
   fakeDisabled: boolean,
   color: 'primary' | 'danger',
@@ -116,6 +119,9 @@ export default function RowTsx(props: Partial<{
         'no-wrap': props.noWrap,
         'row-with-icon': !!props.icon,
         'row-with-padding': havePadding(),
+        'is-selected': props.isSelected !== undefined ? props.isSelected : undefined,
+        'is-full-width': props.fullWidth !== undefined ? props.fullWidth : undefined,
+        'is-flex': props.isFlex !== undefined ? props.isFlex : undefined,
         [`row-clickable hover-${props.color ? props.color + '-' : ''}effect`]: isClickable(),
         'is-disabled': props.disabled,
         'is-fake-disabled': props.fakeDisabled,

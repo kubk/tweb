@@ -34,6 +34,18 @@ $row-border-radius: $border-radius-medium;
     opacity: var(--disabled-opacity);
   }
 
+  &.is-selected {
+    background-color: rgba(43, 43, 43, 1);
+  }
+
+  &.is-full-width {
+    width: 100%;
+  }
+
+  &.is-flex .row-title {
+    display: flex;
+  }
+
   &.is-fake-disabled {
     .row-row {
       opacity: var(--disabled-opacity);

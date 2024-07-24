@@ -9,7 +9,6 @@ export const PanelTabs = () => {
 
   return (
     <div class="tab-buttons">
-
       <TabIcon
         onClick={() => {
           canvasManager.switchTab('enhance');
