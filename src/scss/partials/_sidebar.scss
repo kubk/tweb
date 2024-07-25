@@ -17,7 +17,7 @@
     cursor: default;
 
     .btn-menu {
-      overflow-y: overlay;
+      //overflow-y: overlay;
     }
 
     @include respond-to(handhelds) {

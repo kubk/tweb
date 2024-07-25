@@ -176,97 +176,108 @@ export class AppSidebarLeft extends SidebarSlider {
     }, {
       icon: 'user',
       text: 'Contacts',
-      onClick: onContactsClick
-    }, IS_GEOLOCATION_SUPPORTED ? {
-      icon: 'group',
-      text: 'PeopleNearby',
-      onClick: () => {
-        this.createTab(AppPeopleNearbyTab).open();
-      }
-    } : undefined, {
-      icon: 'settings',
-      text: 'Settings',
-      onClick: () => {
-        this.createTab(AppSettingsTab).open();
-      }
-    }, {
-      icon: 'darkmode',
-      text: 'DarkMode',
-      onClick: () => {
+      onClick: onContactsClick,
+      separatorDown: true
+    },
+      IS_GEOLOCATION_SUPPORTED ? {
+        icon: 'group',
+        text: 'PeopleNearby',
+        onClick: () => {
+          this.createTab(AppPeopleNearbyTab).open();
+        }
+      } : undefined, {
+        icon: 'settings',
+        text: 'Settings',
+        onClick: () => {
+          this.createTab(AppSettingsTab).open();
+        }
+      },
+      {
+        icon: 'more',
+        text: 'More',
+        onClick: () => {
 
-      },
-      checkboxField: themeCheckboxField
-    }, {
-      icon: 'animations',
-      text: 'Animations',
-      onClick: () => {
+        },
+        nestedMenuButtons: [
+          {
+            icon: 'darkmode',
+            text: 'DarkMode',
+            onClick: () => {
 
-      },
-      checkboxField: new CheckboxField({
-        toggle: true,
-        checked: liteMode.isAvailable('animations'),
-        stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
-        stateValueReverse: true
-      }),
-      verify: () => !liteMode.isEnabled()
-    }, {
-      icon: 'animations',
-      text: 'LiteMode.Title',
-      onClick: () => {
-        this.createTab(AppPowerSavingTab).open();
-      },
-      verify: () => liteMode.isEnabled()
-    }, {
-      icon: 'help',
-      text: 'TelegramFeatures',
-      onClick: () => {
-        const url = I18n.format('TelegramFeaturesUrl', true);
-        appImManager.openUrl(url);
+            },
+            checkboxField: themeCheckboxField
+          }, {
+            icon: 'animations',
+            text: 'Animations',
+            onClick: () => {
+
+            },
+            checkboxField: new CheckboxField({
+              toggle: true,
+              checked: liteMode.isAvailable('animations'),
+              stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
+              stateValueReverse: true
+            }),
+            verify: () => !liteMode.isEnabled()
+          }, {
+            icon: 'animations',
+            text: 'LiteMode.Title',
+            onClick: () => {
+              this.createTab(AppPowerSavingTab).open();
+            },
+            verify: () => liteMode.isEnabled(),
+            // TODO: figure out why doesn't work
+            separatorDown: true,
+            separator: true
+          },
+          {
+            icon: 'plusround',
+            text: 'PWA.Install',
+            onClick: () => {
+              const installPrompt = getInstallPrompt();
+              installPrompt?.();
+            },
+            verify: () => !!getInstallPrompt()
+          },
+          {
+            icon: 'char' as Icon,
+            className: 'a',
+            text: 'ChatList.Menu.SwitchTo.A',
+            onClick: () => {
+              Promise.all([
+                sessionStorage.set({kz_version: 'Z'}),
+                sessionStorage.delete('tgme_sync')
+              ]).then(() => {
+                location.href = 'https://web.telegram.org/a/';
+              });
+            },
+            verify: () => App.isMainDomain
+          },
+          {
+            icon: 'help',
+            text: 'TelegramFeatures',
+            onClick: () => {
+              const url = I18n.format('TelegramFeaturesUrl', true);
+              appImManager.openUrl(url);
+            }
+          },
+          {
+            icon: 'bug',
+            text: 'ReportBug',
+            onClick: () => {
+              const a = document.createElement('a');
+              setBlankToAnchor(a);
+              a.href = 'https://bugs.telegram.org/?tag_ids=40&sort=time';
+              document.body.append(a);
+              a.click();
+              setTimeout(() => {
+                a.remove();
+              }, 0);
+            }
+          }
+        ]
       }
-    }, {
-      icon: 'bug',
-      text: 'ReportBug',
-      onClick: () => {
-        const a = document.createElement('a');
-        setBlankToAnchor(a);
-        a.href = 'https://bugs.telegram.org/?tag_ids=40&sort=time';
-        document.body.append(a);
-        a.click();
-        setTimeout(() => {
-          a.remove();
-        }, 0);
-      }
-    }, {
-      icon: 'char' as Icon,
-      className: 'a',
-      text: 'ChatList.Menu.SwitchTo.A',
-      onClick: () => {
-        Promise.all([
-          sessionStorage.set({kz_version: 'Z'}),
-          sessionStorage.delete('tgme_sync')
-        ]).then(() => {
-          location.href = 'https://web.telegram.org/a/';
-        });
-      },
-      verify: () => App.isMainDomain
-    }, /* {
-      icon: 'char w',
-      text: 'ChatList.Menu.SwitchTo.Webogram',
-      onClick: () => {
-        sessionStorage.delete('tgme_sync').then(() => {
-          location.href = 'https://web.telegram.org/?legacy=1';
-        });
-      },
-      verify: () => App.isMainDomain
-    }, */ {
-      icon: 'plusround',
-      text: 'PWA.Install',
-      onClick: () => {
-        const installPrompt = getInstallPrompt();
-        installPrompt?.();
-      },
-      verify: () => !!getInstallPrompt()
-    }];
+    ];
 
     const filteredButtons = menuButtons.filter(Boolean);
     const filteredButtonsSliced = filteredButtons.slice();
@@ -276,9 +287,11 @@ export class AppSidebarLeft extends SidebarSlider {
       onOpenBefore: async() => {
         const attachMenuBots = await this.managers.appAttachMenuBotsManager.getAttachMenuBots();
         const buttons = filteredButtonsSliced.slice();
-        const attachMenuBotsButtons = attachMenuBots.filter((attachMenuBot) => {
+        const botsToShowInSideMenu = attachMenuBots.filter((attachMenuBot) => {
           return attachMenuBot.pFlags.show_in_side_menu;
-        }).map((attachMenuBot) => {
+        });
+        const attachMenuBotsButtons = botsToShowInSideMenu.map((attachMenuBot, i) => {
+          const isLast = i === botsToShowInSideMenu.length - 1;
           const icon = getAttachMenuBotIcon(attachMenuBot);
           const button: typeof buttons[0] = {
             regularText: wrapEmojiText(attachMenuBot.short_name),
@@ -291,34 +304,17 @@ export class AppSidebarLeft extends SidebarSlider {
               });
             },
             iconDoc: icon?.icon as MyDocument,
+            separatorDown: isLast,
             new: attachMenuBot.pFlags.side_menu_disclaimer_needed || attachMenuBot.pFlags.inactive
           };
 
           return button;
         });
 
-        buttons.splice(3, 0, ...attachMenuBotsButtons);
+        buttons.splice(4, 0, ...attachMenuBotsButtons);
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
       },
-      onOpen: (e, btnMenu) => {
-        const btnMenuFooter = document.createElement('a');
-        btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
-        setBlankToAnchor(btnMenuFooter);
-        btnMenuFooter.classList.add('btn-menu-footer');
-        btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {
-          e.stopPropagation();
-          contextMenuController.close();
-        });
-        const t = document.createElement('span');
-        t.classList.add('btn-menu-footer-text');
-        t.textContent = 'Telegram Web' + App.suffix + ' '/* ' alpha ' */ + App.versionFull;
-        btnMenuFooter.append(t);
-        btnMenu.classList.add('has-footer');
-        btnMenu.append(btnMenuFooter);
-
-        const a = btnMenu.querySelector('.a .btn-menu-item-icon');
-        if(a) a.textContent = 'A';
-
+      onOpen: () => {
         btnArchive.element?.append(this.archivedCount);
       },
       noIcon: true

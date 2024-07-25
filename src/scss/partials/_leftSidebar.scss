@@ -34,7 +34,8 @@
       background-color: var(--border-color);
       inset-inline-end: -1px;
       top: 0;
-      z-index: 3;
+      // This line should be below nested menu
+      z-index: 1;
     }
   }
   
@@ -328,6 +329,33 @@
     .btn-menu {
       min-width: 260px;
       max-height: calc(100 * var(--vh) - 3.75rem);
+
+      .btn-menu-item-more {
+        > .tgico.btn-menu-item-icon-right {
+          color: rgba(196, 201, 204, 1);
+        }
+
+        &:active {
+          // Avoid nested menu jump
+          transform: scale(1);
+        }
+        &:hover .btn-menu-nested {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+
+      .btn-menu-nested {
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(250px, -41px);
+
+        @include respond-to(handhelds) {
+          transform: translateX(0);
+          opacity: 1;
+          visibility: visible;
+        }
+      }
 
       &-item {
         --padding-right: .375rem;

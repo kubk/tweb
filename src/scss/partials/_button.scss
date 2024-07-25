@@ -142,8 +142,9 @@ $btn-menu-z-index: 4;
   &-items,
   &-reactions-container/* ,
   &-reactions-bubble-big */ {
-    background-color: var(--menu-background-color);
-    backdrop-filter: var(--menu-backdrop-filter);
+    background-color: rgb(var(--surface-color-rgb));
+    // in Chrome blur can't be nested and won't work for submenu: https://issues.chromium.org/issues/40835530
+    //backdrop-filter: var(--menu-backdrop-filter);
   }
 
   &.has-items-wrapper {
@@ -522,9 +523,11 @@ $btn-menu-z-index: 4;
     color: currentColor;
     // cursor: default;
 
-    /* &-text {
-      margin-top: -.125rem;
-    } */
+    &-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(162, 172, 180, 1);
+    }
   }
 
   hr {
@@ -961,6 +964,10 @@ $btn-menu-z-index: 4;
 
   &:not(.btn-primary):not(.btn-corner).menu-open {
     background-color: var(--light-secondary-text-color);
+  }
+
+  &-more {
+    font-weight: 500 !important;
   }
 
   .btn-menu {
