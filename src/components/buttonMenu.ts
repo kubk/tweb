@@ -21,7 +21,7 @@ import RadioForm from './radioForm';
 import wrapAttachBotIcon from './wrappers/attachBotIcon';
 import setBlankToAnchor from '../lib/richTextProcessor/setBlankToAnchor';
 import App from '../config/app';
-import ButtonMenuToggleNested from './buttonMenuToggleWithoutHandlers';
+import ButtonMenuToggleNested from './buttonMenuToggleNested';
 
 type ButtonMenuItemInner = Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>;
 export type ButtonMenuItemOptions = {

@@ -10,7 +10,7 @@ import findUpClassName from './dom/findUpClassName';
 import mediaSizes from './mediaSizes';
 import OverlayClickHandler from './overlayClickHandler';
 import overlayCounter from './overlayCounter';
-import {nestedMenuClass} from '../components/buttonMenuToggleWithoutHandlers';
+import {nestedMenuClass} from '../components/buttonMenuToggleNested';
 
 class ContextMenuController extends OverlayClickHandler {
   constructor() {
@@ -46,7 +46,7 @@ class ContextMenuController extends OverlayClickHandler {
 
     const isTooFarFromMain = diffX >= 100 || diffY >= 100;
 
-    const nestedMenu = findUpClassName(element, nestedMenuClass);
+    const nestedMenu = element ? findUpClassName(element, nestedMenuClass) : null
     if(nestedMenu) {
       const nestedRect = nestedMenu.getBoundingClientRect();
       const nestedDiffX = clientX >= nestedRect.right ? clientX - nestedRect.right : nestedRect.left - clientX;
