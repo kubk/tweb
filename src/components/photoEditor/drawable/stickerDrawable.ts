@@ -18,68 +18,22 @@ export class StickerDrawable extends Drawable {
   private isRotating = false;
   private angle: number;
 
-  private constructor(
+  constructor(
     private x = 0,
     private y = 0,
-    private image: HTMLImageElement | undefined,
+    private tag: HTMLImageElement|HTMLVideoElement | undefined,
     private imageData: ImageData | undefined,
     public width: number,
     public height: number,
     private updateCursor: (cursor: string) => void,
     private onRemove: (id: number) => void,
-    angle: number
+    angle = 0
   ) {
     super();
     this.id = getNextId();
     this.angle = angle % 360;
     this.originalWidth = width;
     this.originalHeight = height;
-  }
-
-  static fromHtmlImage(
-    x: number,
-    y: number,
-    img: HTMLImageElement,
-    width: number,
-    height: number,
-    updateCursor: (cursor: string) => void,
-    onRemove: (id: number) => void,
-    angle = 0
-  ) {
-    return new StickerDrawable(
-      x,
-      y,
-      img,
-      undefined,
-      width,
-      height,
-      updateCursor,
-      onRemove,
-      angle
-    );
-  }
-
-  static fromImageData(
-    x: number,
-    y: number,
-    imageData: ImageData,
-    width: number,
-    height: number,
-    updateCursor: (cursor: string) => void,
-    onRemove: (id: number) => void,
-    angle = 0
-  ) {
-    return new StickerDrawable(
-      x,
-      y,
-      undefined,
-      imageData,
-      width,
-      height,
-      updateCursor,
-      onRemove,
-      angle
-    );
   }
 
   onMouseDown(mouseX: number, mouseY: number) {
@@ -272,9 +226,9 @@ export class StickerDrawable extends Drawable {
     ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
     ctx.rotate((this.angle * Math.PI) / 180);
 
-    let toDraw: HTMLImageElement|HTMLCanvasElement;
-    if(this.image) {
-      toDraw = this.image;
+    let toDraw: HTMLImageElement|HTMLVideoElement|HTMLCanvasElement;
+    if(this.tag) {
+      toDraw = this.tag;
     } else if(this.imageData) {
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = this.width;
@@ -391,7 +345,7 @@ export class StickerDrawable extends Drawable {
     return new StickerDrawable(
       this.x,
       this.y,
-      this.image,
+      this.tag,
       this.imageData,
       this.width,
       this.height,

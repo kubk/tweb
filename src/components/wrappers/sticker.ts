@@ -81,7 +81,7 @@ const getThumbFromContainer = (container: HTMLElement) => {
   return element;
 };
 
-export default async function wrapSticker({doc, onLoad, div, middleware, loadStickerMiddleware, lazyLoadQueue, exportLoad, group, play, onlyThumb, emoji, width, height, withThumb, loop, loadPromises, needFadeIn, needUpscale, skipRatio, static: asStatic, managers = rootScope.managers, fullThumb, isOut, noPremium, withLock, relativeEffect, loopEffect, isCustomEmoji, syncedVideo, liteModeKey, isEffect, textColor, scrollable, showPremiumInfo, useCache}: {
+export default async function wrapSticker({doc, onAnimatedSticker, div, middleware, loadStickerMiddleware, lazyLoadQueue, exportLoad, group, play, onlyThumb, emoji, width, height, withThumb, loop, loadPromises, needFadeIn, needUpscale, skipRatio, static: asStatic, managers = rootScope.managers, fullThumb, isOut, noPremium, withLock, relativeEffect, loopEffect, isCustomEmoji, syncedVideo, liteModeKey, isEffect, textColor, scrollable, showPremiumInfo, useCache}: {
   doc: MyDocument,
   div: HTMLElement | HTMLElement[],
   middleware?: Middleware,
@@ -116,7 +116,7 @@ export default async function wrapSticker({doc, onLoad, div, middleware, loadSti
   scrollable?: Scrollable
   showPremiumInfo?: () => void,
   useCache?: boolean
-  onLoad?: (canvas: HTMLCanvasElement) => void
+  onAnimatedSticker?: (data: HTMLCanvasElement) => void
 }) {
   const options = arguments[0];
   div = toArray(div);
@@ -128,6 +128,7 @@ export default async function wrapSticker({doc, onLoad, div, middleware, loadSti
   }
 
   const stickerType = doc.sticker;
+
   if(stickerType === 1 || (stickerType === 3 && !IS_WEBM_SUPPORTED)) {
     asStatic = true;
   }
@@ -461,7 +462,7 @@ export default async function wrapSticker({doc, onLoad, div, middleware, loadSti
       const onFirstFrame = (container: HTMLElement, canvas: HTMLCanvasElement) => {
         let element = getThumbFromContainer(container);
         if(canvas) {
-          onLoad?.(canvas)
+          onAnimatedSticker?.(canvas)
         }
         element = element !== canvas && element as HTMLElement;
         if(needFadeIn !== false) {

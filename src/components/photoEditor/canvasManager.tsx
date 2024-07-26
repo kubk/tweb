@@ -119,7 +119,7 @@ export class CanvasManager {
 
   constructor(image: HTMLImageElement) {
     image.onload = () => {
-      this.drawImage(image);
+      this.drawBgImage(image);
     };
   }
 
@@ -377,7 +377,7 @@ export class CanvasManager {
         hoveredResizable.onMouseMove(mouseX, mouseY, this.ctx);
         this.draw();
       } else {
-        this.setCursor(tab() === 'sticker' ? 'default' : 'crosshair');
+        // this.setCursor(tab() === 'sticker' ? 'default' : 'crosshair');
       }
     }
 
@@ -646,7 +646,7 @@ export class CanvasManager {
     });
   }
 
-  async drawImage(img: HTMLImageElement) {
+  async drawBgImage(img: HTMLImageElement) {
     const containerWidth = this.canvasContainerRef?.clientWidth;
     const containerHeight = this.canvasContainerRef?.clientHeight;
     if(!containerWidth || !containerHeight) return;
@@ -674,16 +674,20 @@ export class CanvasManager {
     this.draw();
   }
 
-  addSticker(data: ImageData, size: number) {
+  addSticker(
+    sticker: { type: 'imageData', data: ImageData } | { type: 'tag', data: HTMLImageElement|HTMLVideoElement },
+    size: number
+  ) {
     this.saveState();
 
     const randomX = randomMinMax(outerPadding, this.canvasWidth - size);
     const randomY = randomMinMax(outerPadding, this.canvasHeight - size);
 
-    const stickerDrawable = StickerDrawable.fromImageData(
+    const stickerDrawable = new StickerDrawable(
       randomX,
       randomY,
-      data,
+      sticker.type === 'tag' ? sticker.data : undefined,
+      sticker.type === 'imageData' ? sticker.data : undefined,
       size,
       size,
       this.setCursor,
