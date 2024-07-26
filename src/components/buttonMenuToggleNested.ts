@@ -8,7 +8,7 @@ export const nestedMenuClass = 'btn-menu-nested';
 export default async function ButtonMenuToggleNested({
   buttonOptions,
   buttons,
-  onOpen,
+  onOpen
 }: {
   buttonOptions?: Parameters<typeof ButtonIcon>[1],
   direction: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right',

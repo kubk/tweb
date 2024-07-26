@@ -10,7 +10,6 @@ import {
 import {assert} from './lib/assert';
 import {DrawingOptions} from './drawable/options';
 import {SmoothedPenTool} from './drawable/smoothedPenTool';
-import {ArrowTool} from './drawable/arrowTool';
 import {BrushTool} from './drawable/brushTool';
 import {NeonTool} from './drawable/neonTool';
 import {BgImageDrawable} from './drawable/bgImageDrawable';
@@ -248,15 +247,13 @@ export class CanvasManager {
 
   private createTool(
     tool: Tool,
-    options: DrawingOptions,
-    mouseX: number,
-    mouseY: number
+    options: DrawingOptions
   ) {
     switch(tool) {
       case 'pen':
-        return new SmoothedPenTool(options);
+        return SmoothedPenTool.line(options);
       case 'arrow':
-        return new ArrowTool(mouseX, mouseY, options);
+        return SmoothedPenTool.arrow(options);
       case 'brush':
         return new BrushTool(options);
       case 'neon':
@@ -277,7 +274,7 @@ export class CanvasManager {
         })();
 
         if(!imageData) {
-          return new SmoothedPenTool(options);
+          return SmoothedPenTool.line(options);
         }
 
         return new EraserTool(mode, {
@@ -288,7 +285,7 @@ export class CanvasManager {
         });
       }
       default:
-        return new SmoothedPenTool(options);
+        return SmoothedPenTool.line(options);
     }
   }
 
@@ -304,7 +301,7 @@ export class CanvasManager {
       const [size] = this.drawSize;
       const [tool] = this.tool;
       const options = {color: color, size: size()};
-      const currentLine = this.createTool(tool(), options, mouseX, mouseY);
+      const currentLine = this.createTool(tool(), options);
       currentLine.onMouseMove(mouseX, mouseY);
       mode.currentLine = currentLine;
       this.drawables.push(currentLine);
@@ -402,6 +399,7 @@ export class CanvasManager {
   private onMouseUp = () => {
     const mode = this.mode;
     if(mode?.name === 'drawing' && mode.currentLine) {
+      mode.currentLine.onMouseUp(this.ctx);
       mode.currentLine = undefined;
     } else if(mode?.name === 'dragging' && mode.draggingObject) {
       mode.draggingObject.onMouseUp();
