@@ -368,7 +368,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
           return;
         }
 
-        if (this.stopCancellingEnter) return;
+        if(this.stopCancellingEnter) return;
         if(this.confirmShortcutIsSendShortcut ? isSendShortcutPressed(e) : e.key === 'Enter') {
           simulateClickEvent(this.btnConfirmOnEnter);
           cancelEvent(e);

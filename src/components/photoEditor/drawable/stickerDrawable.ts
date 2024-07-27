@@ -1,7 +1,7 @@
 import {Drawable} from './drawable';
 import {getNextId} from '../lib/getNextId';
 import {ResizeHandle} from '../lib/resizeHandle';
-import {drawHandle, handleRadius} from "./drawHandle";
+import {drawHandle, handleRadius} from './drawHandle';
 
 export const outerPadding = 6;
 

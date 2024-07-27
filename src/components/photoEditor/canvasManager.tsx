@@ -32,9 +32,9 @@ export type CropAction =
 type Mode =
   | { name: 'idle' }
   | {
-      name: 'drawing';
-      currentLine?: Drawable;
-    }
+  name: 'drawing';
+  currentLine?: Drawable;
+}
   | { name: 'dragging'; draggingObject: DraggableResizable }
   | { name: 'cropping'; cropArea?: CropAreaDrawable };
 
@@ -377,7 +377,7 @@ export class CanvasManager {
         hoveredResizable.onMouseMove(mouseX, mouseY, this.ctx);
         this.draw();
       } else {
-        if (tab() === 'text') {
+        if(tab() === 'text') {
           this.setCursor('crosshair');
         }
       }
@@ -649,14 +649,20 @@ export class CanvasManager {
   }
 
   async drawBgImage(img: HTMLImageElement) {
-    const containerWidth = this.canvasContainerRef?.clientWidth;
-    const containerHeight = this.canvasContainerRef?.clientHeight;
+    let containerWidth = this.canvasContainerRef?.clientWidth;
+    let containerHeight = this.canvasContainerRef?.clientHeight;
     if(!containerWidth || !containerHeight) return;
+
+    if(img.width >= containerWidth && containerWidth > containerHeight) {
+      containerWidth = containerHeight - 100
+    }
+    if(img.height >= containerHeight && containerHeight > containerWidth) {
+      containerHeight -= 100;
+    }
 
     const {width, height} = fitImageIntoCanvas(
       containerWidth,
-      // -100 to accommodate angle picker in helpers mode
-      containerHeight - 100,
+      containerHeight,
       img.width,
       img.height
     );
@@ -830,7 +836,9 @@ export class CanvasManager {
         }
       })
       this.draw();
+      // @ts-ignore
       this.canvas.toBlob((blob) => {
+        // @ts-ignore
         resolve(new File([blob], 'canvas_image.png'))
       })
     })

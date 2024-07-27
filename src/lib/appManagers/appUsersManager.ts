@@ -766,7 +766,7 @@ export class AppUsersManager extends AppManager {
 
   async getAccountsData() {
     return [
-      this.getSelf(),
+      this.getSelf()
     ]
   }
 

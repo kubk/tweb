@@ -2,7 +2,7 @@ import {Drawable} from './drawable';
 import {clamp} from '../lib/clamp';
 import {getNextId} from '../lib/getNextId';
 import {ResizeHandle} from '../lib/resizeHandle';
-import {drawHandle, handleRadius} from "./drawHandle";
+import {drawHandle, handleRadius} from './drawHandle';
 
 export type TextAlign = 'left' | 'center' | 'right';
 export type TextStyle = 'plain' | 'outline' | 'background';

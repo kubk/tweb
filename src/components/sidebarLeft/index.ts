@@ -73,10 +73,10 @@ import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
-import wrapPeerTitle from "../wrappers/peerTitle";
-import {AvatarNew} from "../avatarNew";
+import wrapPeerTitle from '../wrappers/peerTitle';
+import {AvatarNew} from '../avatarNew';
 
-const getUserAccountList =  async () =>{
+const getUserAccountList =  async() =>{
   const users =  await rootScope.managers.appUsersManager.getAccountsData();
   return users;
 }
@@ -293,7 +293,7 @@ export class AppSidebarLeft extends SidebarSlider {
       buttons: filteredButtons,
       onOpenBefore: async() => {
         const [attachMenuBots, userAccountList] = await Promise.all([
-          await this.managers.appAttachMenuBotsManager.getAttachMenuBots() ,
+          await this.managers.appAttachMenuBotsManager.getAttachMenuBots(),
           await getUserAccountList()
         ])
         const buttons = filteredButtonsSliced.slice();
@@ -321,12 +321,12 @@ export class AppSidebarLeft extends SidebarSlider {
           return button;
         });
 
-        const userAccountListButtons = await Promise.all(userAccountList.map(async (user, i) => {
+        const userAccountListButtons = await Promise.all(userAccountList.map(async(user, i) => {
           const isLast = i === userAccountList.length - 1;
 
           const userCorrectName = await wrapPeerTitle({
             peerId: user.id.toPeerId(),
-            plainText: true,
+            plainText: true
           })
 
           const button: typeof buttons[0] = {
@@ -336,7 +336,7 @@ export class AppSidebarLeft extends SidebarSlider {
               // appImManager.setPeer({
               //   peerId: user.id
               // });
-            },
+            }
           };
 
           return button;

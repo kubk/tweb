@@ -22,7 +22,7 @@ import wrapAttachBotIcon from './wrappers/attachBotIcon';
 import setBlankToAnchor from '../lib/richTextProcessor/setBlankToAnchor';
 import App from '../config/app';
 import ButtonMenuToggleNested from './buttonMenuToggleNested';
-import {AvatarNew} from "./avatarNew";
+import {AvatarNew} from './avatarNew';
 
 type ButtonMenuItemInner = Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>;
 export type ButtonMenuItemOptions = {
@@ -62,7 +62,7 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(options.element) return [options.separator as HTMLElement, options.element].filter(Boolean);
 
-  const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener,iconAvatar} = options;
+  const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener, iconAvatar} = options;
   const el = document.createElement('div');
   const iconSplitted = icon?.split(' ');
   el.className = 'btn-menu-item rp-overflow' +
