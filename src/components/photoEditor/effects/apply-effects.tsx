@@ -8,7 +8,7 @@ const HIGHLIGHTS_SHADOWS_FACTOR = 2.55;
 const VIGNETTE_FACTOR = 1 / 100;
 const GRAIN_FACTOR = 2.55;
 const SHARPEN_FACTOR = 1 / 100;
-const ENHANCE_FACTOR = 0.001;
+const ENHANCE_FACTOR = 0.01;
 
 export const applyEffects = (
   effects: Effects,
@@ -26,6 +26,7 @@ export const applyEffects = (
     return;
   }
 
+  // Pre-compute effect values
   const brightness = effects.brightness * BRIGHTNESS_FACTOR;
   const contrast = effects.contrast * CONTRAST_FACTOR + 1;
   const saturation = effects.saturation * SATURATION_FACTOR + 1;
@@ -38,6 +39,7 @@ export const applyEffects = (
   const sharpen = effects.sharpen * SHARPEN_FACTOR;
   const enhance = effects.enhance * ENHANCE_FACTOR;
 
+  // Pre-compute vignette values
   const centerX = imageWidth / 2;
   const centerY = imageHeight / 2;
   const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
