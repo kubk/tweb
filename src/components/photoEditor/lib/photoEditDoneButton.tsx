@@ -1,4 +1,7 @@
 import './photoEditDoneButton.scss';
+import {useCanvasManager} from "../canvasManagerContext";
+import {putPreloader} from "../../putPreloader";
+import {createEffect, on, Show} from 'solid-js'
 
 const Icon = () => {
   return (
@@ -21,9 +24,21 @@ const Icon = () => {
 };
 
 export const PhotoEditDoneButton = (props: { onClick: () => void }) => {
+  const canvasManager = useCanvasManager();
+  const [isImageImporting] = canvasManager.isImageImporting;
+  let doneButtonRef: HTMLDivElement;
+
+  createEffect(on(isImageImporting, (isImageImporting) => {
+    if (isImageImporting) {
+      putPreloader(doneButtonRef);
+    }
+  }))
+
   return (
-    <div class={'photoEditDoneButton'} onClick={props.onClick}>
-      <Icon />
+    <div class={'photoEditDoneButton'} ref={doneButtonRef!} onClick={props.onClick}>
+      <Show when={!isImageImporting()} >
+        <Icon />
+      </Show>
     </div>
   );
 };

@@ -21,6 +21,7 @@ import {fonts} from './tabBody/text/textTabBody';
 import {createSignalWithOnchange} from './lib/createSignalWithOnchange';
 import {outerPadding, StickerDrawable} from './drawable/stickerDrawable';
 import {randomMinMax} from './lib/randomMinMax';
+import {canvasToFile} from "./lib/canvasToFile";
 
 export type Tool = 'pen' | 'arrow' | 'brush' | 'neon' | 'blur' | 'eraser';
 
@@ -116,6 +117,8 @@ export class CanvasManager {
 
   canUndo = createSignal(false);
   canRedo = createSignal(false);
+
+  isImageImporting = createSignal(false);
 
   constructor(image: HTMLImageElement) {
     image.onload = () => {
@@ -828,22 +831,17 @@ export class CanvasManager {
   }
 
   toFile(): Promise<File> {
-    return new Promise((resolve) => {
-      this.drawables = this.drawablesWithoutCropArea();
-      this.drawables.forEach(drawable => {
-        if(isDraggableResizable(drawable)) {
-          drawable.isSelected = false;
-        }
-      })
-      this.draw();
-      // @ts-ignore
-      this.canvas.toBlob((blob) => {
-        // @ts-ignore
-        resolve(new File([blob], 'canvas_image.png'))
-      })
+    const [, setImageImporting] = this.isImageImporting;
+    setImageImporting(true);
+    this.drawables = this.drawablesWithoutCropArea();
+    this.drawables.forEach(drawable => {
+      if(isDraggableResizable(drawable)) {
+        drawable.isSelected = false;
+      }
     })
+    this.draw();
+    return canvasToFile(this.canvas);
   }
-
   private updateMode(newMode: Mode) {
     modifyMutable(this.mode, reconcile<Mode, Mode>(newMode));
   }

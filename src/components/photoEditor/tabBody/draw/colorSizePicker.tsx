@@ -1,10 +1,11 @@
 import {createSignal, For, JSXElement, Signal} from 'solid-js';
 import {ColorSwitcherIcon} from './colorSwitcherIcon';
-import {ColorPicker} from '../../colorPicker/colorPicker';
 import {rgbToHex} from '../../lib/colorUtils';
 import {PredefinedColor} from './predefinedColor';
 import {PositiveSlider} from '../positiveSlider';
 import './colorSizePicker.scss';
+import './photoEditorColorPicker.scss';
+import {TelegramColorPicker} from './telegramColorPicker';
 
 type ColorPickerMode = 'predefined' | 'custom';
 
@@ -34,13 +35,17 @@ export const ColorSizePicker = (props: {
     {r: 189, g: 92, b: 243}
   ];
 
+  const switchColorPickerMode = () => {
+    setColorPickerMode(
+      colorPickerMode() === 'custom' ? 'predefined' : 'custom'
+    );
+  }
+
   const colorSwitcher = (
     <ColorSwitcherIcon
       isSelected={colorPickerMode() === 'custom'}
       onClick={() => {
-        setColorPickerMode(
-          colorPickerMode() === 'custom' ? 'predefined' : 'custom'
-        );
+        switchColorPickerMode();
       }}
     />
   );
@@ -48,12 +53,12 @@ export const ColorSizePicker = (props: {
   return (
     <>
       {colorPickerMode() === 'custom' && (
-        <div>
-          <ColorPicker
-            hueSlot={colorSwitcher}
-            colorSignal={props.currentColorSignal}
-          />
-        </div>
+        <TelegramColorPicker
+          defaultColorRgb={props.currentColor()}
+          onColorSwitcherClick={switchColorPickerMode}
+          onChange={(color) => {
+            props.currentColorSignal[1](color.rgb)
+          }}/>
       )}
       {colorPickerMode() === 'predefined' && (
         <div class={'predefinedColorList'}>
@@ -89,6 +94,7 @@ export const ColorSizePicker = (props: {
           onChange={setSize}
         />
       </div>
+
     </>
   );
 };

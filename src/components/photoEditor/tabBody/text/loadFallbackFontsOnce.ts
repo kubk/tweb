@@ -2,7 +2,7 @@ let loaded = false;
 
 // Loads non-proprietary fallback for some missing proprietary fonts
 export async function loadFallbackFontsOnce() {
-  if (loaded) return;
+  if(loaded) return;
   loaded = true;
 
   function loadFont(fontName: string) {
@@ -27,7 +27,7 @@ export async function loadFallbackFontsOnce() {
     'Special Elite',
     'Nunito',
     'Architects Daughter',
-    'Dancing Script',
+    'Dancing Script'
   ];
 
   return Promise.all(fonts.map(loadFont));

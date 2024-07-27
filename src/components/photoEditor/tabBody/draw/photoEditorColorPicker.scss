@@ -1,0 +1,44 @@
+.tgPhotoEditor .photoEditorColorPicker {
+  padding-left: 24px;
+  padding-right: 24px;
+
+  .color-picker {
+    margin-top: 10px;
+  }
+
+  .color-picker-sliders {
+    margin-top: 4px;
+    margin-right: 40px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .color-picker-box-wrapper {
+    display: flex;
+    gap: 8px;
+
+    .color-picker-box {
+      width: 200px;
+      height: 120px;
+      display: inline-block;
+    }
+
+    .color-picker-inputs {
+      display: inline-block;
+      gap: 4px;
+
+      .input-field {
+        &:first-child {
+        }
+        &:last-child {
+          margin-top: 12px;
+        }
+      }
+
+    }
+
+  }
+
+}
