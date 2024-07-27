@@ -5,6 +5,7 @@ import {CanvasManagerProvider} from './canvasManagerContext';
 type Props = {
   image: HTMLImageElement;
   onDone: (file: File, onClose: () => void) => void
+  onClose: () => void;
 };
 
 export const appendPhotoEditor = (props: Props) => {
@@ -16,6 +17,7 @@ export const appendPhotoEditor = (props: Props) => {
   document.body.append(photoEditor);
   const onClose = () => {
     photoEditor.remove();
+    props.onClose();
   };
 
   render(

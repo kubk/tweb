@@ -915,12 +915,20 @@ export default class PopupNewMedia extends PopupElement {
           const image = new Image();
           image.src = URL.createObjectURL(params.file);
 
-          appendPhotoEditor({image, onDone: async(file, onClose) => {
-            await this.insertAndScaleImageToHtml(img, params, file);
+          const onClose = () => {
             this.isPhotoEditorOn = false;
             this.setStopCancellingEnter(false);
-            onClose();
-          }})
+          }
+
+          appendPhotoEditor({
+            image,
+            onDone: async(file, onCloseInner) => {
+              await this.insertAndScaleImageToHtml(img, params, file);
+              onClose();
+              onCloseInner();
+            },
+            onClose
+          })
         }}
         onSpoiler={() => {
           if(params.mediaSpoiler == null) {
