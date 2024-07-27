@@ -8,44 +8,45 @@ import {
   TextWithBackgroundIcon,
   TextWithOutlineIcon
 } from './icons';
-import {For, JSXElement} from 'solid-js';
+import {For, JSXElement, onMount} from 'solid-js';
 import {TextAlign, TextStyle} from '../../drawable/textDrawable';
 import {useCanvasManager} from '../../canvasManagerContext';
 import RowTsx from '../../../rowTsx';
+import {loadFallbackFontsOnce} from "./loadFallbackFontsOnce";
 
 export const fonts: Array<{ title: string; fontFamily: string }> = [
   {
-    title: 'Roboto',
-    fontFamily: 'Roboto, sans-serif'
+    title: "Roboto",
+    fontFamily: "Roboto, sans-serif",
   },
   {
-    title: 'Typewriter',
-    fontFamily: 'Courier, monospace'
+    title: "Typewriter",
+    fontFamily: "Courier, Special Elite",
   },
   {
-    title: 'Avenir Next',
-    fontFamily: 'Avenir Next'
+    title: "Avenir Next",
+    fontFamily: "Avenir Next, Nunito",
   },
   {
-    title: 'Courier New',
-    fontFamily: 'Courier New'
+    title: "Courier New",
+    fontFamily: "Courier New",
   },
   {
-    title: 'Noteworthy',
-    fontFamily: 'Noteworthy'
+    title: "Noteworthy",
+    fontFamily: "Noteworthy, Architects Daughter",
   },
   {
-    title: 'Georgia',
-    fontFamily: 'Georgia'
+    title: "Georgia",
+    fontFamily: "Georgia",
   },
   {
-    title: 'Papyrus',
-    fontFamily: 'Papyrus'
+    title: "Papyrus",
+    fontFamily: "Papyrus",
   },
   {
-    title: 'Snell Roundhand',
-    fontFamily: 'Snell Roundhand'
-  }
+    title: "Snell Roundhand",
+    fontFamily: "Snell Roundhand, Dancing Script",
+  },
 ];
 
 export const TextTabBody = () => {
@@ -71,6 +72,10 @@ export const TextTabBody = () => {
     },
     {icon: <TextWithBackgroundIcon />, style: 'background'}
   ];
+
+  onMount(() => {
+    loadFallbackFontsOnce()
+  })
 
   return (
     <div class={'textTabBody'}>
