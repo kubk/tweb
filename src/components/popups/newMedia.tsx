@@ -911,12 +911,14 @@ export default class PopupNewMedia extends PopupElement {
       this.appendSolidToElement(itemDiv, () => <ImageActionsContainer
         onEnhance={() => {
           this.isPhotoEditorOn = true;
+          this.setStopCancellingEnter(true);
           const image = new Image();
           image.src = URL.createObjectURL(params.file);
 
           appendPhotoEditor({image, onDone: async(file, onClose) => {
             await this.insertAndScaleImageToHtml(img, params, file);
             this.isPhotoEditorOn = false;
+            this.setStopCancellingEnter(false);
             onClose();
           }})
         }}

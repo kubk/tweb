@@ -22,10 +22,12 @@ import wrapAttachBotIcon from './wrappers/attachBotIcon';
 import setBlankToAnchor from '../lib/richTextProcessor/setBlankToAnchor';
 import App from '../config/app';
 import ButtonMenuToggleNested from './buttonMenuToggleNested';
+import {AvatarNew} from "./avatarNew";
 
 type ButtonMenuItemInner = Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>;
 export type ButtonMenuItemOptions = {
   icon?: Icon,
+  iconAvatar?: number;
   iconDoc?: Document.document,
   danger?: boolean,
   new?: boolean,
@@ -60,7 +62,7 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(options.element) return [options.separator as HTMLElement, options.element].filter(Boolean);
 
-  const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener} = options;
+  const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener,iconAvatar} = options;
   const el = document.createElement('div');
   const iconSplitted = icon?.split(' ');
   el.className = 'btn-menu-item rp-overflow' +
@@ -74,6 +76,12 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
 
   if(iconSplitted) {
     el.append(Icon(iconSplitted[0] as Icon, 'btn-menu-item-icon'));
+  }
+
+  if(iconAvatar) {
+    const avatarElement = AvatarNew({peerId: iconAvatar, size: 20}).element as HTMLElement
+    avatarElement.classList.add('btn-menu-item-icon');
+    el.append(avatarElement);
   }
 
   let textElement = options.textElement;
@@ -169,6 +177,8 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
     el.classList.add('has-inner');
     (el as any).inner = options.inner;
   }
+
+
   if(options.nestedMenuButtons) {
     ButtonMenuToggleNested({
       buttons: options.nestedMenuButtons,

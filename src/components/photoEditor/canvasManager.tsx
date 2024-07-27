@@ -377,7 +377,9 @@ export class CanvasManager {
         hoveredResizable.onMouseMove(mouseX, mouseY, this.ctx);
         this.draw();
       } else {
-        // this.setCursor(tab() === 'sticker' ? 'default' : 'crosshair');
+        if (tab() === 'text') {
+          this.setCursor('crosshair');
+        }
       }
     }
 

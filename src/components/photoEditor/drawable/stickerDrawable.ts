@@ -1,10 +1,9 @@
 import {Drawable} from './drawable';
 import {getNextId} from '../lib/getNextId';
 import {ResizeHandle} from '../lib/resizeHandle';
-import {assert} from '../lib/assert';
+import {drawHandle, handleRadius} from "./drawHandle";
 
 export const outerPadding = 6;
-const handleRadius = 4;
 
 export class StickerDrawable extends Drawable {
   public readonly id: number;
@@ -314,16 +313,10 @@ export class StickerDrawable extends Drawable {
         centerY +
         (hx - centerX) * Math.sin(angleRad) +
         (hy - centerY) * Math.cos(angleRad);
-      this.drawHandle(ctx, rotatedX, rotatedY);
+      drawHandle(ctx, rotatedX, rotatedY);
     });
   }
 
-  private drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(x, y, handleRadius, 0, Math.PI * 2);
-    ctx.fill();
-  }
 
   onMouseUp() {
     this.isDragging = false;

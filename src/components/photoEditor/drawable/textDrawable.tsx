@@ -2,6 +2,7 @@ import {Drawable} from './drawable';
 import {clamp} from '../lib/clamp';
 import {getNextId} from '../lib/getNextId';
 import {ResizeHandle} from '../lib/resizeHandle';
+import {drawHandle, handleRadius} from "./drawHandle";
 
 export type TextAlign = 'left' | 'center' | 'right';
 export type TextStyle = 'plain' | 'outline' | 'background';
@@ -10,7 +11,6 @@ type Line = { text: string; width: number };
 
 const caret = '|';
 const borderRadius = 10;
-const handleRadius = 4;
 
 export class TextDrawable extends Drawable {
   public readonly id: number;
@@ -201,16 +201,10 @@ export class TextDrawable extends Drawable {
     ];
 
     handles.forEach(([handle, hx, hy]) => {
-      this.drawHandle(ctx, hx, hy);
+      drawHandle(ctx, hx, hy);
     });
   }
 
-  private drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(x, y, handleRadius, 0, Math.PI * 2);
-    ctx.fill();
-  }
 
   onMouseDown(mouseX: number, mouseY: number) {
     if(this.isSelected) {

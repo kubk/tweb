@@ -73,6 +73,13 @@ import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
+import wrapPeerTitle from "../wrappers/peerTitle";
+import {AvatarNew} from "../avatarNew";
+
+const getUserAccountList =  async () =>{
+  const users =  await rootScope.managers.appUsersManager.getAccountsData();
+  return users;
+}
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -285,7 +292,10 @@ export class AppSidebarLeft extends SidebarSlider {
       direction: 'bottom-right',
       buttons: filteredButtons,
       onOpenBefore: async() => {
-        const attachMenuBots = await this.managers.appAttachMenuBotsManager.getAttachMenuBots();
+        const [attachMenuBots, userAccountList] = await Promise.all([
+          await this.managers.appAttachMenuBotsManager.getAttachMenuBots() ,
+          await getUserAccountList()
+        ])
         const buttons = filteredButtonsSliced.slice();
         const botsToShowInSideMenu = attachMenuBots.filter((attachMenuBot) => {
           return attachMenuBot.pFlags.show_in_side_menu;
@@ -310,6 +320,36 @@ export class AppSidebarLeft extends SidebarSlider {
 
           return button;
         });
+
+        const userAccountListButtons = await Promise.all(userAccountList.map(async (user, i) => {
+          const isLast = i === userAccountList.length - 1;
+
+          const userCorrectName = await wrapPeerTitle({
+            peerId: user.id.toPeerId(),
+            plainText: true,
+          })
+
+          const button: typeof buttons[0] = {
+            regularText: userCorrectName,
+            iconAvatar: user.id.toPeerId(),
+            onClick: () => {
+              // appImManager.setPeer({
+              //   peerId: user.id
+              // });
+            },
+          };
+
+          return button;
+        }))
+
+        userAccountListButtons.push({
+          icon: 'plus',
+          // @ts-ignore
+          text: 'Add Account',
+          onClick: () => {}
+        })
+
+        buttons.splice(0, 0, ...userAccountListButtons);
 
         buttons.splice(4, 0, ...attachMenuBotsButtons);
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
