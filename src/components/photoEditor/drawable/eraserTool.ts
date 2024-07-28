@@ -38,7 +38,9 @@ export class EraserTool extends Drawable {
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvas.width = canvasWidth;
     offscreenCanvas.height = canvasHeight;
-    const offscreenCtx = offscreenCanvas.getContext('2d');
+    const offscreenCtx = offscreenCanvas.getContext('2d', {
+      willReadFrequently: true
+    });
 
     if(!offscreenCtx) return;
 
@@ -72,7 +74,6 @@ export class EraserTool extends Drawable {
   }
 
   clone() {
-    // TODO: Test this
     const newEraser = new EraserTool(this.mode, {
       ...this.options,
       size: this.size

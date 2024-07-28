@@ -26,7 +26,6 @@ export const applyEffects = (
     return;
   }
 
-  // Pre-compute effect values
   const brightness = effects.brightness * BRIGHTNESS_FACTOR;
   const contrast = effects.contrast * CONTRAST_FACTOR + 1;
   const saturation = effects.saturation * SATURATION_FACTOR + 1;
@@ -39,7 +38,6 @@ export const applyEffects = (
   const sharpen = effects.sharpen * SHARPEN_FACTOR;
   const enhance = effects.enhance * ENHANCE_FACTOR;
 
-  // Pre-compute vignette values
   const centerX = imageWidth / 2;
   const centerY = imageHeight / 2;
   const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);

@@ -1,5 +1,6 @@
 import {createSignal, Signal} from 'solid-js';
 
+// Syncs the value of a signal with canvas
 export const createSignalWithOnchange = <T extends any>(
   value: T,
   onChange: (value: T) => void

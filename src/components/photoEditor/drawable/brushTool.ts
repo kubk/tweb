@@ -48,7 +48,6 @@ export class BrushTool extends Drawable {
         ctx.translate(x, y);
         ctx.rotate(ROTATION);
 
-        // Apply size to brush dimensions
         const brushWidth = (BRUSH_WIDTH * this.size) / 10;
         const brushHeight = (BRUSH_HEIGHT * this.size) / 10;
 

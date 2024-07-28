@@ -3,7 +3,9 @@ export function scaleImageData(sourceImageData: ImageData, targetSize = 300): Im
   const sourceCanvas = document.createElement('canvas');
   sourceCanvas.width = sourceImageData.width;
   sourceCanvas.height = sourceImageData.height;
-  const sourceCtx = sourceCanvas.getContext('2d');
+  const sourceCtx = sourceCanvas.getContext('2d', {
+    willReadFrequently: true
+  });
   sourceCtx.putImageData(sourceImageData, 0, 0);
 
   const scale = Math.min(targetSize / sourceImageData.width, targetSize / sourceImageData.height);
@@ -13,7 +15,9 @@ export function scaleImageData(sourceImageData: ImageData, targetSize = 300): Im
   const targetCanvas = document.createElement('canvas');
   targetCanvas.width = targetSize;
   targetCanvas.height = targetSize;
-  const targetCtx = targetCanvas.getContext('2d');
+  const targetCtx = targetCanvas.getContext('2d', {
+    willReadFrequently: true
+  });
 
   const offsetX = (targetSize - scaledWidth) / 2;
   const offsetY = (targetSize - scaledHeight) / 2;

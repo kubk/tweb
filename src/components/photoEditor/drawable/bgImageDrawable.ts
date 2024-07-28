@@ -124,7 +124,9 @@ export class BgImageDrawable extends Drawable {
     ctx.scale(scale, scale);
 
     const tempCanvas = new OffscreenCanvas(this.width, this.height);
-    const tempCtx = tempCanvas.getContext('2d');
+    const tempCtx = tempCanvas.getContext('2d', {
+      willReadFrequently: true
+    });
     if(!tempCtx) return;
     (tempCtx as any).putImageData(imageData, 0, 0);
     ctx.drawImage(tempCanvas, -this.width / 2, -this.height / 2);
@@ -159,7 +161,9 @@ export class BgImageDrawable extends Drawable {
     );
 
     const offscreenCanvas = new OffscreenCanvas(newWidth, newHeight);
-    const ctx = offscreenCanvas.getContext('2d') as any;
+    const ctx = offscreenCanvas.getContext('2d', {
+      willReadFrequently: true
+    }) as any;
     assert(ctx, 'Failed to get 2d context');
 
     ctx.translate(newWidth / 2, newHeight / 2);

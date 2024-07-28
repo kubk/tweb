@@ -232,7 +232,9 @@ export class StickerDrawable extends Drawable {
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = this.width;
       tempCanvas.height = this.height;
-      const tempCtx = tempCanvas.getContext('2d');
+      const tempCtx = tempCanvas.getContext('2d', {
+        willReadFrequently: true
+      });
       if(!tempCtx) return;
       const scaledImageData = this.scaleImageData(this.imageData, this.width, this.height);
       tempCtx.putImageData(scaledImageData, 0, 0);
@@ -260,7 +262,9 @@ export class StickerDrawable extends Drawable {
     const canvas = document.createElement('canvas');
     canvas.width = imageData.width;
     canvas.height = imageData.height;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', {
+      willReadFrequently: true
+    });
     if(!ctx) return imageData;
 
     ctx.putImageData(imageData, 0, 0);

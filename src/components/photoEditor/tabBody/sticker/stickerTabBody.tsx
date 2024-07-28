@@ -44,7 +44,9 @@ export const StickerTabBody = () => {
             setTimeout(() => {
               // Animated stickers get rendered into canvas element instead of HTMLImageElement/HTMLVideoElement
               // So we apply this canvas image to the photo editor
-              const data = stickerCanvas.getContext('2d')
+              const data = stickerCanvas.getContext('2d', {
+                willReadFrequently: true
+              })
               .getImageData(0, 0, stickerCanvas.offsetWidth * window.devicePixelRatio, stickerCanvas.offsetHeight * window.devicePixelRatio);
               const scaled = scaleImageData(data, size);
               canvasManager.addSticker({

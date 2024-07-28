@@ -1,4 +1,4 @@
-import {createSignal, Signal} from 'solid-js';
+import {createEffect, createSignal, on, Signal, untrack} from 'solid-js';
 import {createMutable, modifyMutable, reconcile} from 'solid-js/store';
 import {Drawable} from './drawable/drawable';
 import {
@@ -21,7 +21,8 @@ import {fonts} from './tabBody/text/textTabBody';
 import {createSignalWithOnchange} from './lib/createSignalWithOnchange';
 import {outerPadding, StickerDrawable} from './drawable/stickerDrawable';
 import {randomMinMax} from './lib/randomMinMax';
-import {canvasToFile} from './lib/canvasToFile';
+import {debounce} from './lib/debounce';
+import {canvasToFile} from "./lib/canvasToFile";
 
 export type Tool = 'pen' | 'arrow' | 'brush' | 'neon' | 'blur' | 'eraser';
 
@@ -119,11 +120,16 @@ export class CanvasManager {
   canRedo = createSignal(false);
 
   isImageImporting = createSignal(false);
+  isCrop = false;
+  private drawRequested = false;
 
   constructor(image: HTMLImageElement) {
     image.onload = () => {
       this.drawBgImage(image);
     };
+    createEffect(on(this.tab[0], (tab) => {
+      this.isCrop = tab === 'crop';
+    }));
   }
 
   init(
@@ -134,7 +140,7 @@ export class CanvasManager {
     if(!canvasContainerRef) return;
     this.canvas = canvas;
     this.canvasContainerRef = canvasContainerRef;
-    this.draw();
+    this.requestDraw();
     this.setUpListeners();
   }
 
@@ -147,7 +153,7 @@ export class CanvasManager {
 
     if(tab !== 'crop' && previousTab() === 'crop') {
       this.drawables = this.drawablesWithoutCropArea();
-      this.draw();
+      this.requestDraw();
     }
 
     if(
@@ -155,12 +161,8 @@ export class CanvasManager {
       (tab !== 'sticker' && previousTab() === 'sticker')
     ) {
       this.setCursor('default');
-      this.drawables.forEach((drawable) => {
-        if(isDraggableResizable(drawable)) {
-          drawable.isSelected = false;
-        }
-      });
-      this.draw();
+      this.deselectAllDrawables();
+      this.requestDraw();
     }
 
     setTab(tab);
@@ -171,7 +173,7 @@ export class CanvasManager {
       setAspectRatio('free');
       this.drawables.push(cropAreaDrawable);
       this.updateMode({name: 'cropping', cropArea: cropAreaDrawable});
-      this.draw();
+      this.requestDraw();
     } else if(tab === 'draw') {
       this.updateMode({name: 'drawing'});
     } else {
@@ -326,7 +328,7 @@ export class CanvasManager {
           this.updateMode({name: 'dragging', draggingObject: objectToDrag});
           this.selectDrawable(objectToDrag);
           objectToDrag.onMouseDown(mouseX, mouseY);
-          this.draw();
+          this.requestDraw();
           this.saveState();
         }
       } else if(currentTab === 'text') {
@@ -338,7 +340,7 @@ export class CanvasManager {
         this.selectDrawable(objectToDrag);
         this.updateMode({name: 'dragging', draggingObject: objectToDrag});
         objectToDrag.onMouseDown(mouseX, mouseY);
-        this.draw();
+        this.requestDraw();
         this.saveState();
       }
     }
@@ -349,11 +351,7 @@ export class CanvasManager {
   };
 
   private selectDrawable(selected?: Drawable) {
-    this.drawables.forEach((drawable) => {
-      if(isDraggableResizable(drawable)) {
-        drawable.isSelected = false;
-      }
-    });
+    this.deselectAllDrawables();
 
     if(selected && isDraggableResizable(selected)) {
       selected.isSelected = true;
@@ -378,7 +376,7 @@ export class CanvasManager {
       if(hoveredResizable) {
         this.setCursor('grab');
         hoveredResizable.onMouseMove(mouseX, mouseY, this.ctx);
-        this.draw();
+        this.requestDraw();
       } else {
         if(tab() === 'text') {
           this.setCursor('crosshair');
@@ -388,18 +386,34 @@ export class CanvasManager {
 
     if(this.mode.name === 'drawing' && this.mode.currentLine) {
       this.mode.currentLine.onMouseMove(mouseX, mouseY, this.ctx);
-      this.draw();
+      this.requestDraw();
     } else if(this.mode.name === 'dragging') {
       if(this.mode.draggingObject) {
         this.mode.draggingObject.onMouseMove(mouseX, mouseY, this.ctx);
         this.selectDrawable(this.mode.draggingObject);
-        this.draw();
+        this.requestDraw();
       }
     } else if(this.mode.name === 'cropping') {
       this.mode.cropArea?.onMouseMove(mouseX, mouseY, this.ctx);
-      this.draw();
+      this.requestDraw();
     }
   };
+
+  requestDraw = () => {
+    if (this.isCrop) {
+      this.draw()
+      return;
+    }
+
+    if (!this.drawRequested) {
+      this.drawRequested = true;
+      requestAnimationFrame(() => {
+        this.draw();
+        this.drawRequested = false;
+      });
+    }
+  }
+
 
   private onMouseUp = () => {
     const mode = this.mode;
@@ -440,7 +454,7 @@ export class CanvasManager {
     assert(actualAspectRatio);
     setAspectRatio(actualAspectRatio);
     cropArea.acceptAspectRatio(actualAspectRatio);
-    this.draw();
+    this.requestDraw();
   }
 
   applyCrop() {
@@ -451,41 +465,51 @@ export class CanvasManager {
     this.drawables = this.drawablesWithoutCropArea();
     this.mode.cropArea = undefined;
     const {x, y, width, height} = cropArea.getCroppedRectangleCoordinates();
-    this.draw();
+    this.requestDraw();
     this.saveState();
     const croppedImageData = this.ctx.getImageData(x, y, width, height);
+
+    this.touchedEffects = new Set();
+    this.effectsApplied = createEffects();
 
     const imageDrawable = BgImageDrawable.fromImageData(
       croppedImageData,
       width,
       height,
-      createEffects(),
-      new Set()
+      this.effectsApplied,
+      this.touchedEffects
+    );
+    this.drawables = this.drawables.filter(
+      (d) => !(d instanceof BgImageDrawable)
     );
     this.drawables.push(imageDrawable);
+
     this.canvasSafe.width = width;
     this.canvasSafe.height = height;
-    this.draw();
+    this.requestDraw();
 
     this.onChangeAspectRatio();
   }
 
-  applyCropAction(action: CropAction) {
+  applyCropAction = debounce((action: CropAction) => {
     if(this.mode.name !== 'cropping') {
       return;
     }
 
     this.drawables = this.drawablesWithoutCropArea();
     this.mode.cropArea = undefined;
-    this.draw();
+    this.requestDraw();
     this.saveState();
+
+    this.touchedEffects = new Set();
+    this.effectsApplied = createEffects();
 
     const imageDrawable = BgImageDrawable.fromImageData(
       this.getFullCanvasData(),
       this.canvasWidth,
       this.canvasHeight,
-      createEffects(),
-      new Set()
+      this.effectsApplied,
+      this.touchedEffects
     );
 
     if(action.type === 'rotate90') {
@@ -494,20 +518,21 @@ export class CanvasManager {
       this.canvasSafe.width = width;
       this.canvasSafe.height = height;
       this.onResetRotationAngle?.();
+      this.draw();
     } else if(action.type === 'flip') {
       const newDrawable = imageDrawable.flip();
       this.drawables.push(newDrawable);
       this.onResetRotationAngle?.();
+      this.draw();
     } else if(action.type === 'rotate') {
       const id = this.getLastImageDrawable();
       assert(id);
       id.rotate(action.angle);
+      this.requestDraw();
     }
 
-    this.draw();
-
     this.onChangeAspectRatio();
-  }
+  }, 16)
 
   get ctx() {
     const ctx = this.canvasSafe.getContext('2d', {
@@ -637,7 +662,7 @@ export class CanvasManager {
 
     this.getLastImageDrawable()?.redrawProcessedCanvas();
 
-    this.draw();
+    this.requestDraw();
   }
 
   setUiEffectValue(key: keyof Effects, value: number) {
@@ -646,11 +671,17 @@ export class CanvasManager {
   }
 
   draw() {
+    const ctx = this.ctx;
+    const width = this.canvasWidth;
+    const height = this.canvasHeight;
+
     // Clear the canvas so dragging doesn't leave a trail
-    this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.drawables.forEach((drawable) => {
-      drawable.draw(this.ctx);
-    });
+    ctx.clearRect(0, 0, width, height);
+
+    const len = this.drawables.length;
+    for(let i = 0; i < len; i++) {
+      this.drawables[i].draw(ctx);
+    }
   }
 
   async drawBgImage(img: HTMLImageElement) {
@@ -684,7 +715,7 @@ export class CanvasManager {
         this.touchedEffects
       )
     );
-    this.draw();
+    this.requestDraw();
   }
 
   addSticker(
@@ -708,7 +739,7 @@ export class CanvasManager {
     );
     this.selectDrawable(stickerDrawable);
     this.drawables.push(stickerDrawable);
-    this.draw();
+    this.requestDraw();
   }
 
   isApplyCropVisible() {
@@ -724,6 +755,7 @@ export class CanvasManager {
     this.canvas.removeEventListener('mousedown', this.onMouseDown);
     this.canvas.removeEventListener('mousemove', this.onMouseMove);
     this.canvas.removeEventListener('mouseup', this.onMouseUp);
+    this.canvas.removeEventListener('mouseleave', this.onMouseUp);
     document.removeEventListener('keydown', this.onKeyDown);
   }
 
@@ -754,14 +786,14 @@ export class CanvasManager {
     );
     this.selectDrawable(textDrawable);
     this.drawables.push(textDrawable);
-    this.draw();
+    this.requestDraw();
   }
 
   private onDraggableRemove = (id: number) => {
     this.drawables = this.drawables.filter((drawable) =>
       isDraggableResizable(drawable) ? drawable.id !== id : true
     );
-    this.draw();
+    this.requestDraw();
   };
 
   private onKeyDown = (event: KeyboardEvent) => {
@@ -797,7 +829,7 @@ export class CanvasManager {
         isDraggableResizable(draggableResizableSelected)
       ) {
         draggableResizableSelected.onKeyPress(event);
-        this.draw();
+        this.requestDraw();
       }
     }
   };
@@ -832,15 +864,20 @@ export class CanvasManager {
     });
   }
 
+  private deselectAllDrawables() {
+    for(let i = 0; i < this.drawables.length; i++) {
+      const drawable = this.drawables[i];
+      if(isDraggableResizable(drawable)) {
+        drawable.isSelected = false;
+      }
+    }
+  }
+
   toFile(): Promise<File> {
     const [, setImageImporting] = this.isImageImporting;
     setImageImporting(true);
     this.drawables = this.drawablesWithoutCropArea();
-    this.drawables.forEach(drawable => {
-      if(isDraggableResizable(drawable)) {
-        drawable.isSelected = false;
-      }
-    })
+    this.deselectAllDrawables();
     this.draw();
     return canvasToFile(this.canvas);
   }
@@ -856,6 +893,6 @@ export class CanvasManager {
     if(!selectedTextDrawable) return;
     assert(selectedTextDrawable instanceof TextDrawable);
     cb(selectedTextDrawable);
-    this.draw();
+    this.requestDraw();
   }
 }

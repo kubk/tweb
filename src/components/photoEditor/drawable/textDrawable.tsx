@@ -58,7 +58,9 @@ export class TextDrawable extends Drawable {
 
   private calculateDimensions() {
     const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
+    const tempCtx = tempCanvas.getContext('2d', {
+      willReadFrequently: true
+    });
     if(!tempCtx) throw new Error('Unable to create temporary canvas context');
 
     tempCtx.font = this.font;
