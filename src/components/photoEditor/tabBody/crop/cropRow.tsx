@@ -9,7 +9,7 @@ export const CropRow = (props: {
   isSelected: boolean;
 }) => {
   return (
-    <div class={'night cropRowWrapper'}>
+    <div class={'cropRowWrapper'}>
       <RowTsx
         fullWidth={true}
         isSelected={props.isSelected}

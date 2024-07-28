@@ -58,6 +58,7 @@ import PopupMakePaid from './makePaid';
 import paymentsWrapCurrencyAmount from '../../helpers/paymentsWrapCurrencyAmount';
 import {ImageActionsContainer} from './imageActionsContainer';
 import {appendPhotoEditor} from '../photoEditor/appendPhotoEditor';
+import themeController from '../../helpers/themeController';
 // import ButtonIcon from "../buttonIcon";
 
 type SendFileParams = SendFileDetails & {
@@ -915,7 +916,17 @@ export default class PopupNewMedia extends PopupElement {
           const image = new Image();
           image.src = URL.createObjectURL(params.file);
 
+          // Kinda hacky but the photo editor is dark and the white scrollbar looks ugly
+          // There is no way to set browser's scrollbar color separate without switching the theme
+          const isNightBefore = themeController.isNight();
+          if(!isNightBefore) {
+            themeController._setTheme(true, 'dark')
+          }
+
           const onClose = () => {
+            if(!isNightBefore) {
+              themeController._setTheme(true, 'light')
+            }
             this.isPhotoEditorOn = false;
             this.setStopCancellingEnter(false);
           }

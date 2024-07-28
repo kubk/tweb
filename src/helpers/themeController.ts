@@ -207,8 +207,8 @@ export class ThemeController {
     }
   }
 
-  public _setTheme(silent?: boolean) {
-    const isNight = this.isNight();
+  public _setTheme(silent?: boolean, force?: 'dark' | 'light') {
+    const isNight = force !== undefined ? force === 'dark' : this.isNight();
     const colorScheme = document.head.querySelector('[name="color-scheme"]');
     colorScheme?.setAttribute('content', isNight ? 'dark' : 'light');
 

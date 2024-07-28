@@ -19,5 +19,5 @@ export const TelegramColorPicker = (props: Props) => {
     tgColorPicker.setColor(props.defaultColorRgb, true, true)
   })
 
-  return <div class={'night photoEditorColorPicker'} ref={pickerRef!}/>
+  return <div class={'photoEditorColorPicker'} ref={pickerRef!}/>
 }

@@ -21,7 +21,7 @@ import {fonts} from './tabBody/text/textTabBody';
 import {createSignalWithOnchange} from './lib/createSignalWithOnchange';
 import {outerPadding, StickerDrawable} from './drawable/stickerDrawable';
 import {randomMinMax} from './lib/randomMinMax';
-import {canvasToFile} from "./lib/canvasToFile";
+import {canvasToFile} from './lib/canvasToFile';
 
 export type Tool = 'pen' | 'arrow' | 'brush' | 'neon' | 'blur' | 'eraser';
 
@@ -418,6 +418,8 @@ export class CanvasManager {
     this.canvasSafe.addEventListener('mousedown', this.onMouseDown);
     this.canvasSafe.addEventListener('mousemove', this.onMouseMove);
     this.canvasSafe.addEventListener('mouseup', this.onMouseUp);
+    // Prevent issue when mouse leaves the canvas while drawing / dragging
+    this.canvasSafe.addEventListener('mouseleave', this.onMouseUp);
     document.addEventListener('keydown', this.onKeyDown);
   }
 
@@ -457,8 +459,8 @@ export class CanvasManager {
       croppedImageData,
       width,
       height,
-      this.effectsApplied,
-      this.touchedEffects
+      createEffects(),
+      new Set()
     );
     this.drawables.push(imageDrawable);
     this.canvasSafe.width = width;
@@ -482,8 +484,8 @@ export class CanvasManager {
       this.getFullCanvasData(),
       this.canvasWidth,
       this.canvasHeight,
-      this.effectsApplied,
-      this.touchedEffects
+      createEffects(),
+      new Set()
     );
 
     if(action.type === 'rotate90') {
@@ -842,6 +844,7 @@ export class CanvasManager {
     this.draw();
     return canvasToFile(this.canvas);
   }
+
   private updateMode(newMode: Mode) {
     modifyMutable(this.mode, reconcile<Mode, Mode>(newMode));
   }

@@ -80,7 +80,7 @@ export const StickerTabBody = () => {
     emoticonsDropdown.onButtonClick();
   })
 
-  return <div class="stickersTabBody night"
+  return <div class="stickersTabBody"
     ref={wrapperRef!}>
     <div ref={stickerContainer!} class={'hiddenStickerContainer'}/>
   </div>

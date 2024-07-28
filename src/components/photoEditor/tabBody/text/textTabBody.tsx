@@ -133,7 +133,7 @@ export const TextTabBody = () => {
         <For each={fonts}>
           {(font) => {
             const [textFont, setTextFont] = canvasManager.textFont;
-            return <div style={{'font-family': font.fontFamily}} class={'night'}>
+            return <div style={{'font-family': font.fontFamily}}>
               <RowTsx title={font.title} isSelected={textFont() === font.fontFamily} clickable={() => {
                 setTextFont(font.fontFamily);
               }}/>

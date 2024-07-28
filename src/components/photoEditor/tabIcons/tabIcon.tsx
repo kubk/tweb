@@ -9,7 +9,7 @@ export const TabIcon = (props: {
 }) => {
   return (
     <div
-      class="editor-tab-icon night"
+      class="editor-tab-icon"
       classList={{active: props.isActive}}
     >
       <RowTsx

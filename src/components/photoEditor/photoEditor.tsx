@@ -34,7 +34,7 @@ export const PhotoEditor = (props: Props) => {
   });
 
   return (
-    <div class="tgPhotoEditor">
+    <div class="tgPhotoEditor night">
       <div ref={canvasContainerRef!} class="canvasWithRotatePanel">
         <div class="canvasWrapper">
           <canvas ref={canvasRef!} id="canvas" />
