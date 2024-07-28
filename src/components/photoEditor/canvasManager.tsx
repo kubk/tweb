@@ -22,7 +22,7 @@ import {createSignalWithOnchange} from './lib/createSignalWithOnchange';
 import {outerPadding, StickerDrawable} from './drawable/stickerDrawable';
 import {randomMinMax} from './lib/randomMinMax';
 import {debounce} from './lib/debounce';
-import {canvasToFile} from "./lib/canvasToFile";
+import {canvasToFile} from './lib/canvasToFile';
 
 export type Tool = 'pen' | 'arrow' | 'brush' | 'neon' | 'blur' | 'eraser';
 
@@ -171,6 +171,18 @@ export class CanvasManager {
       const cropAreaDrawable = this.createCropAreaDrawable();
       const [, setAspectRatio] = this.cropAspectRatio;
       setAspectRatio('free');
+
+      if(this.drawables.find(d => d instanceof SmoothedPenTool || d instanceof BrushTool || d instanceof NeonTool || d instanceof EraserTool)) {
+        const imageDrawable = BgImageDrawable.fromImageData(
+          this.getFullCanvasData(),
+          this.canvasWidth,
+          this.canvasHeight,
+          this.effectsApplied,
+          this.touchedEffects
+        );
+        this.drawables.push(imageDrawable);
+      }
+
       this.drawables.push(cropAreaDrawable);
       this.updateMode({name: 'cropping', cropArea: cropAreaDrawable});
       this.requestDraw();
@@ -400,12 +412,12 @@ export class CanvasManager {
   };
 
   requestDraw = () => {
-    if (this.isCrop) {
+    if(this.isCrop) {
       this.draw()
       return;
     }
 
-    if (!this.drawRequested) {
+    if(!this.drawRequested) {
       this.drawRequested = true;
       requestAnimationFrame(() => {
         this.draw();
@@ -478,9 +490,6 @@ export class CanvasManager {
       height,
       this.effectsApplied,
       this.touchedEffects
-    );
-    this.drawables = this.drawables.filter(
-      (d) => !(d instanceof BgImageDrawable)
     );
     this.drawables.push(imageDrawable);
 

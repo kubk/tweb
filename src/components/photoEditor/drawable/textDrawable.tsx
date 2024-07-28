@@ -47,8 +47,6 @@ export class TextDrawable extends Drawable {
     this.lineHeight = this.fontSize + this.innerPadding;
     this.lines.push({text: initialText, width: 0});
     this.calculateDimensions();
-    // @ts-ignore
-    window['text' + this.id] = this;
   }
 
   private updatePaddings() {

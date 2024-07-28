@@ -31,7 +31,7 @@ import findUpTag from '../../helpers/dom/findUpTag';
 import App from '../../config/app';
 import ButtonMenuToggle from '../buttonMenuToggle';
 import sessionStorage from '../../lib/sessionStorage';
-import {attachClickEvent, CLICK_EVENT_NAME, simulateClickEvent} from '../../helpers/dom/clickEvent';
+import {attachClickEvent, simulateClickEvent} from '../../helpers/dom/clickEvent';
 import ButtonIcon from '../buttonIcon';
 import confirmationPopup from '../confirmationPopup';
 import IS_GEOLOCATION_SUPPORTED from '../../environment/geolocationSupport';
@@ -43,7 +43,6 @@ import indexOfAndSplice from '../../helpers/array/indexOfAndSplice';
 import formatNumber from '../../helpers/number/formatNumber';
 import {AppManagers} from '../../lib/appManagers/managers';
 import themeController from '../../helpers/themeController';
-import contextMenuController from '../../helpers/contextMenuController';
 import appDialogsManager, {DIALOG_LIST_ELEMENT_TAG} from '../../lib/appManagers/appDialogsManager';
 import apiManagerProxy from '../../lib/mtproto/mtprotoworker';
 import SettingSection, {SettingSectionOptions} from '../settingSection';
@@ -66,7 +65,7 @@ import flatten from '../../helpers/array/flatten';
 import EmojiTab from '../emoticonsDropdown/tabs/emoji';
 import {EmoticonsDropdown} from '../emoticonsDropdown';
 import cloneDOMRect from '../../helpers/dom/cloneDOMRect';
-import {AccountEmojiStatuses, Document, EmojiStatus} from '../../layer';
+import {AccountEmojiStatuses, EmojiStatus} from '../../layer';
 import filterUnique from '../../helpers/array/filterUnique';
 import {Middleware, MiddlewareHelper} from '../../helpers/middleware';
 import wrapEmojiStatus from '../wrappers/emojiStatus';
@@ -74,7 +73,6 @@ import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
 import wrapPeerTitle from '../wrappers/peerTitle';
-import {AvatarNew} from '../avatarNew';
 
 const getUserAccountList =  async() =>{
   const users =  await rootScope.managers.appUsersManager.getAccountsData();
@@ -333,9 +331,6 @@ export class AppSidebarLeft extends SidebarSlider {
             regularText: userCorrectName,
             iconAvatar: user.id.toPeerId(),
             onClick: () => {
-              // appImManager.setPeer({
-              //   peerId: user.id
-              // });
             }
           };
 
@@ -346,7 +341,9 @@ export class AppSidebarLeft extends SidebarSlider {
           icon: 'plus',
           // @ts-ignore
           text: 'Add Account',
-          onClick: () => {}
+          onClick: async() => {
+            // await loadSessionToSessionStorage();
+          }
         })
 
         buttons.splice(0, 0, ...userAccountListButtons);

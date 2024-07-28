@@ -1,7 +1,7 @@
 ## Sleek Shrimp
 
 ### Media editor
-- It uses Canvas 2D with optimizations: OffScreenCanvas, UintClampedArray if possible
+- Uses Canvas 2D with optimizations: OffScreenCanvas, typed arrays, reduced canvas re-renders
 - All the tabs are implemented:
   - **Enhance**: all the filters
   - **Crop**: cropping (cropping area is resizable, draggable, supports different aspect ratio), rotating, flipping
@@ -10,8 +10,11 @@
   - **Stickers**: Supports inserting all the 3 types of stickers (static, animated, video). Stickers are resizable, draggable, rotatable. But only static version of sticker is used, no GIF conversion
 - WebK code was reused for consistency: sticker selector, ripple effect, color picker
 - All the tabs support undo/redo, the undo limit is 15
+- Tested in desktop versions of Chrome, Firefox, Safari. Doesn't support mobile version
+- No external dependencies introduced
 
 ### Multiple accounts
+- Left top menu supports nested menu by hovering on More. The code for nested menu has been re-used but with all the contextMenuController logic removed to avoid double overlay issues.
 
 ### Scrolling issue
 - Hasn't been addressed
